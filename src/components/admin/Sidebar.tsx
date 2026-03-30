@@ -98,13 +98,19 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         </nav>
 
         <div className="p-4 mt-auto border-t border-white/5 space-y-2 pb-8">
-          <Button 
-            variant="ghost" 
-            className="w-full justify-start text-gray-400 hover:text-white hover:bg-white/5 rounded-2xl px-5 h-14 font-bold text-xs tracking-widest uppercase transition-all"
+          <Link
+            href="/dashboard/configuracoes"
+            onClick={onClose}
+            className={cn(
+              "w-full flex items-center gap-4 px-5 py-4 rounded-2xl font-bold text-xs tracking-widest uppercase transition-all",
+              pathname === "/dashboard/configuracoes"
+                ? "bg-primary text-white"
+                : "text-gray-400 hover:text-white hover:bg-white/5"
+            )}
           >
-            <Settings className="w-5 h-5 mr-4 opacity-50" />
+            <Settings className="w-5 h-5 opacity-50" />
             Configurações
-          </Button>
+          </Link>
           <Button 
             variant="ghost" 
             className="w-full justify-start text-red-400/60 hover:text-red-500 hover:bg-red-500/10 rounded-2xl px-5 h-14 font-bold text-xs tracking-widest uppercase transition-all"

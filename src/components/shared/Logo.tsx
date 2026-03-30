@@ -8,60 +8,46 @@ interface LogoProps {
 }
 
 export default function Logo({ className, variant = "full-color" }: LogoProps) {
-  // carColor: #D21016 (Premium Red)
-  const carColor = variant === "light" ? "white" : variant === "dark" ? "black" : "#D21016";
-  const textColor = variant === "light" ? "white" : variant === "dark" ? "black" : "#1a1a1a";
+  // Brand colors mapping
+  const carColor = variant === "light" ? "white" : "#D21016";
+  const textColor = variant === "light" ? "white" : "#1a1a1a";
 
   return (
-    <div className={cn("flex flex-col items-start gap-0", className)}>
-      <svg 
-        viewBox="0 0 200 45" 
-        fill="none" 
-        xmlns="http://www.w3.org/2000/svg" 
-        className="h-[40px] w-auto block overflow-visible"
-        preserveAspectRatio="xMinYMid meet"
-      >
-        {/* Elite Supercar Silhouette - Hand-crafted Geometric Paths */}
-        {/* Main Roof-to-Tail Curve */}
-        <path 
-          d="M10 32C15 32 35 28 55 12C75 -4 140 -4 165 12C185 24 195 32 200 32" 
-          stroke={carColor} 
-          strokeWidth="4.5" 
-          strokeLinecap="round" 
-        />
-        {/* High-Speed Waist Flare */}
-        <path 
-          d="M30 38C60 36 90 35 120 35C150 35 180 36 190 38" 
-          stroke={carColor} 
-          strokeWidth="2.5" 
-          strokeLinecap="round" 
-          opacity="0.6"
-        />
-        {/* Accent Shadow Line */}
-        <path 
-          d="M60 42L150 42" 
-          stroke={carColor} 
-          strokeWidth="1" 
-          strokeLinecap="round" 
-          opacity="0.3"
-        />
-      </svg>
+    <div className={cn("flex items-center gap-4", className)}>
+      <div className="relative h-10 w-20 flex items-center justify-center overflow-visible">
+        <svg 
+          viewBox="100 400 850 180" 
+          fill="none" 
+          xmlns="http://www.w3.org/2000/svg" 
+          className="h-full w-auto block"
+        >
+          {/* Official RED SWOOSH Path 1 */}
+          <path 
+            fill={carColor}
+            d="M446.518,509.697 C484.217,513.349 521.427,512.977 558.695,509.574 C594.942,506.265 630.563,499.687 665.821,490.902 C674.214,488.811 682.495,486.272 690.839,483.981 C692.568,483.507 694.347,483.217 696.617,483.851 C694.946,484.877 693.357,486.077 691.592,486.903 C659.03,502.142 625.071,513.282 589.939,520.724 C551.516,528.863 512.628,532.614 473.331,531.707 C438.274,530.897 403.621,526.476 369.295,519.52 C351.196,515.853 333.327,510.963 315.154,507.771 C285.111,502.496 255.079,504.534 225.239,510.148 C193.866,516.05 163.814,526.251 134.39,538.47 C134.139,538.094 133.888,537.718 133.638,537.342 C141.573,531.585 149.308,525.524 157.48,520.126 C187.642,500.206 220.68,487.329 256.319,481.577 C287.771,476.5 318.672,476.999 349.223,488.768 C380.253,500.722 412.966,506.461 446.518,509.697 Z"
+          />
+          {/* Official RED SWOOSH Path 2 */}
+          <path 
+            fill={carColor}
+            d="M846.808,461.812 C864.332,464.276 881.112,462.743 897.655,458.047 C904.172,456.197 904.116,456.256 906.776,462.535 C920.275,494.411 913.651,523.727 895.54,551.601 C895.182,552.152 894.763,552.677 894.296,553.136 C894.09,553.338 893.691,553.343 893.289,553.465 C892.777,545.852 892.574,538.232 891.649,530.7 C891.046,525.791 889.765,520.882 888.144,516.196 C882.765,500.644 870.827,494.139 855.189,493.31 C849.373,493.027 843.515,493.027 837.695,493.302 C817.005,494.277 797.911,488.734 779.415,479.966 C757.619,469.633 735.88,459.105 713.639,449.803 C684.652,437.68 654.328,429.853 623.058,426.498 C606.536,424.725 589.855,423.608 573.249,423.64 C548.437,423.688 523.771,426.342 499.291,430.658 C458.375,437.872 418.464,448.731 379.47,463.018 C375.572,464.446 371.688,465.912 367.177,466.392 C372.366,462.926 377.462,459.309 382.759,456.017 C414.986,435.984 448.909,419.548 485.166,408.129 C512.234,399.605 539.84,393.797 568.179,391.598 C601.783,388.992 634.993,391.462 667.957,398.44 C698.828,404.975 728.659,414.665 757.473,427.404 C776.32,435.736 794.605,445.387 813.66,453.18 C824.002,457.41 835.427,458.99 846.808,461.812 Z"
+          />
+        </svg>
+      </div>
       
-      {/* Brand Text Block - Optically Aligned */}
-      <div className="flex flex-col -mt-2 pl-1.5">
+      <div className="flex flex-col border-l border-slate-200 pl-4 py-0.5">
         <span 
           className={cn(
-            "text-3xl sm:text-4xl font-display font-black italic tracking-tighter leading-none uppercase select-none",
-            variant === "light" ? "text-white" : "text-black"
+            "text-2xl font-display font-black tracking-tighter leading-none uppercase select-none",
+            variant === "light" ? "text-white border-white/20" : "text-black"
           )}
-          style={{ letterSpacing: "-0.06em" }}
+          style={{ letterSpacing: "-0.02em" }}
         >
           PRIME
         </span>
         <span 
           className={cn(
-            "text-[9px] sm:text-[11px] font-black tracking-[0.55em] leading-none uppercase -mt-1 select-none",
-            variant === "light" ? "text-white/50" : "text-primary/90"
+            "text-[8px] font-black tracking-[0.6em] leading-none uppercase -mt-0.5 select-none opacity-40",
+            variant === "light" ? "text-white" : "text-black"
           )}
         >
           VEÍCULOS

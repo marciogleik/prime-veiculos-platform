@@ -43,17 +43,22 @@ export async function generateMetadata({ params }: VeiculoPageProps): Promise<Me
   };
 }
 
+import { getMockVehicleBySlug } from "@/lib/mock-vehicles";
+
 export default async function VeiculoPage({ params }: VeiculoPageProps) {
   const { slug } = await params;
   const supabase = await createClient();
 
-  const { data: v, error } = await supabase
+  const { data: dbVehicle } = await supabase
     .from("vehicles")
     .select("*, brand:brands(*), photos:vehicle_photos(*), seller:sellers(*)")
     .eq("slug", slug)
     .single();
 
-  if (error || !v) notFound();
+  // Fall back to mock data if not found in DB
+  const v = dbVehicle ?? getMockVehicleBySlug(slug);
+
+  if (!v) notFound();
 
   const precoFormatado = new Intl.NumberFormat("pt-BR", {
     style: "currency",
