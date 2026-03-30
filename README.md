@@ -6,7 +6,7 @@ Plataforma digital completa para o setor automotivo. Construída do zero para ir
 
 O sistema funciona em duas camadas:
 
-**Showroom Digital** — interface pública com catálogo premium, filtros avançados (preço, quilometragem, combustível), galeria de fotos em alta definição e integração direta com WhatsApp para contato imediato. Leads captados pelo site chegam automaticamente ao painel do vendedor.
+**Showroom Digital** — interface pública com catálogo, filtros avançados (preço, quilometragem, combustível), galeria de fotos em alta definição e integração direta com WhatsApp para contato imediato. Leads captados pelo site chegam automaticamente ao painel do vendedor.
 
 **Painel Administrativo (CRM)** — área privada com gestão completa de estoque, pipeline de leads do primeiro contato até o fechamento, business intelligence com métricas de performance e ferramentas de apoio como consulta de CPF para agilizar o atendimento.
 
