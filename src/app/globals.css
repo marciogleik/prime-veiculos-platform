@@ -1,0 +1,90 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --font-display: var(--font-syne);
+  --font-sans: var(--font-dm-sans);
+  --letter-spacing-tight: -0.02em; /* Apple-style */
+  --line-height-relaxed: 1.6;
+  
+  --color-primary: #e11d48; /* Red-600 */
+  --color-primary-foreground: #ffffff;
+
+  --shadow-antigravity: 0 40px 100px -20px rgba(0, 0, 0, 0.1), 0 20px 50px -30px rgba(0, 0, 0, 0.15);
+  --shadow-antigravity-hover: 0 60px 120px -25px rgba(0,0,0,0.2), 0 40px 80px -40px rgba(0,0,0,0.25);
+  --shadow-inner-tech: inset 0 2px 4px 0 rgba(255, 255, 255, 0.1);
+
+  --radius-antigravity: 2rem;
+  --radius-antigravity-lg: 3.5rem;
+
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  @keyframes antigravity-bounce {
+    0% { transform: translateY(40px); opacity: 0; }
+    60% { transform: translateY(-10px); opacity: 1; }
+    100% { transform: translateY(0); opacity: 1; }
+  }
+  --animate-antigravity: antigravity-bounce 1s cubic-bezier(0.22, 1, 0.36, 1);
+  --animate-shimmer: shimmer 2.5s infinite linear;
+}
+
+@utility skeleton-premium {
+  background: linear-gradient(
+    90deg,
+    rgba(226, 232, 240, 0.2) 25%,
+    rgba(226, 232, 240, 0.5) 50%,
+    rgba(226, 232, 240, 0.2) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite linear;
+}
+
+@utility bg-antigravity-void {
+  background: radial-gradient(circle at center, #ffffff 0%, #f1f5f9 100%);
+}
+
+@utility glass-premium {
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: var(--shadow-antigravity);
+}
+
+@utility glass-premium-light {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(16px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 20px 40px -20px rgba(0, 0, 0, 0.05);
+}
+
+@utility rounded-antigravity {
+  border-radius: var(--radius-antigravity);
+}
+
+@utility rounded-antigravity-lg {
+  border-radius: var(--radius-antigravity-lg);
+}
+
+@utility text-premium-grey {
+  color: #64748b; /* Slate-500: readable but elegant */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
