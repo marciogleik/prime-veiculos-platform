@@ -1,6 +1,6 @@
 # Prime Veículos Platform
 
-Plataforma digital completa para o setor automotivo. Construída do zero para ir além de um simples site de classificados — é um ecossistema que conecta o showroom público ao time de vendas em tempo real.
+Plataforma digital completa para o setor automotivo. Construída do zero para ir além de um simples site de classificados é um ecossistema que conecta o showroom público ao time de vendas em tempo real.
 
 ## O que é
 
