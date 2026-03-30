@@ -159,8 +159,8 @@ export default function VeiculoForm({
                   <Label>Marca</Label>
                   {brands.length > 0 ? (
                     <Select
-                      defaultValue={watch("brand_id")}
-                      onValueChange={(val) => setValue("brand_id", val)}
+                      defaultValue={watch("brand_id") ?? undefined}
+                      onValueChange={(val) => setValue("brand_id", val as string)}
                     >
                       <SelectTrigger className="h-12 rounded-xl">
                         <SelectValue placeholder="Selecione a marca..." />
