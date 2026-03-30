@@ -30,10 +30,6 @@ O sistema funciona em duas camadas:
 
 A autenticação e as permissões são validadas tanto no cliente quanto no servidor via Supabase SSR. O banco de dados utiliza Row Level Security (RLS), garantindo que cada vendedor acesse apenas seus próprios leads — administradores têm visão total do sistema.
 
-## Status
-
-`Deployed` — base técnica sólida e em produção.
-
 ---
 
 Desenvolvido por [Marcio Gleik]([https://github.com/marciogleik](https://www.linkedin.com/in/marciogleikdev/))
