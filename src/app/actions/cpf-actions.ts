@@ -33,16 +33,15 @@ export async function consultarCpfAction(cpf: string) {
             throw new Error(errorMsg || `Erro na API: ${response.status}`);
         }
 
-        // The API returns core data inside a 'data' property
-        const apiData = fullResponse.data || {};
+        // The API returns core data inside a 'data' property or at the root
+        const apiData = fullResponse.data || fullResponse || {};
         
         // Return everything returned by the API, but ensure common fields are mapped for convenience
-        // Priority: nested data > root data
         return { 
             success: true, 
             data: {
-                ...fullResponse, // Preserve original structure
-                // Flatten important fields for the UI at the root of the 'data' return object
+                ...fullResponse, // Original structure
+                ...apiData,      // Flattened core data
                 nome: apiData.nome || apiData.nome_pessoa_fisica || fullResponse.nome || "Não Informado",
                 situacao_cadastral: apiData.situacao_cadastral || fullResponse.situacao_cadastral || apiData.status || "REGULAR",
                 score: apiData.score !== undefined ? apiData.score : (fullResponse.score !== undefined ? fullResponse.score : null),

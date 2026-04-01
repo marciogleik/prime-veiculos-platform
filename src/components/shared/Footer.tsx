@@ -14,22 +14,22 @@ export default function Footer() {
             <Link href="/" className="mb-8 block">
               <Logo variant="light" className="h-10" />
             </Link>
-            <p className="text-gray-400 leading-relaxed mb-6 text-sm">
+            <p className="text-gray-100 leading-relaxed mb-6 text-sm">
               Sua concessionária premium de confiança. Qualidade, transparência e os melhores veículos do mercado.
             </p>
             <div className="flex gap-4">
-              <a href="#" className="bg-white/10 p-2 rounded-full hover:bg-primary transition-colors">
+              <a href="https://www.instagram.com/primeveiculos_pva/" target="_blank" className="bg-white/10 p-2 rounded-full hover:bg-primary transition-colors">
                 <Instagram className="w-5 h-5" />
               </a>
-              <a href="#" className="bg-white/10 p-2 rounded-full hover:bg-primary transition-colors">
-                <Facebook className="w-5 h-5" />
+              <a href="https://wa.me/message/FCLJWRVPZNJHP1" target="_blank" className="bg-white/10 p-2 rounded-full hover:bg-emerald-500 transition-colors">
+                <Phone className="w-5 h-5" />
               </a>
             </div>
           </div>
 
           <div>
             <h3 className="text-lg font-bold mb-6">Links Rápidos</h3>
-            <ul className="space-y-4 text-gray-400 text-sm">
+            <ul className="space-y-4 text-gray-100 text-sm">
               <li><Link href="/catalogo" className="hover:text-white transition-colors">Nosso Estoque</Link></li>
               <li>
                 <button onClick={() => toast.info("Em breve: Avaliação online.")} className="hover:text-white transition-colors">
@@ -51,7 +51,7 @@ export default function Footer() {
 
           <div>
             <h3 className="text-lg font-bold mb-6">Horário de Atendimento</h3>
-            <ul className="space-y-4 text-gray-400">
+            <ul className="space-y-4 text-gray-100">
               <li>Segunda - Sexta: 08h às 18h</li>
               <li>Sábado: 08h às 14h</li>
               <li>Domingo: Fechado</li>
@@ -60,7 +60,7 @@ export default function Footer() {
 
           <div>
             <h3 className="text-lg font-bold mb-6">Contato</h3>
-            <ul className="space-y-4 text-gray-400">
+            <ul className="space-y-4 text-gray-100">
               <li className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 text-primary shrink-0" />
                 <span>Av. Principal, 1000 - Centro, Cidade - UF</span>
@@ -77,7 +77,7 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-white/10 pt-8 text-center text-gray-500 text-sm">
+        <div className="border-t border-white/20 pt-8 text-center text-gray-200 text-sm">
           <p>© {new Date().getFullYear()} Prime Veículos. Todos os direitos reservados.</p>
         </div>
       </div>

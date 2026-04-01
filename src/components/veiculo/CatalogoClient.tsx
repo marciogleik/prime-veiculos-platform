@@ -1,27 +1,58 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, SlidersHorizontal, X, ChevronDown } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 import VeiculoCard from "./VeiculoCard";
-import { Vehicle } from "@/types";
+import { Vehicle, Brand } from "@/types";
 
 interface CatalogoClientProps {
   vehicles: Vehicle[];
+  brands: Brand[];
 }
 
 const FUEL_OPTIONS = ["Gasolina", "Flex", "Elétrico", "Diesel"];
 const TRANSMISSION_OPTIONS = ["Automático", "Manual", "CVT"];
 
-export default function CatalogoClient({ vehicles }: CatalogoClientProps) {
+function toggleFilter<T extends string>(
+  value: T,
+  current: T[],
+  setter: (val: T[]) => void
+) {
+  if (current.includes(value)) {
+    setter(current.filter((item) => item !== value));
+  } else {
+    setter([...current, value]);
+  }
+}
+
+export default function CatalogoClient({ vehicles, brands }: CatalogoClientProps) {
+  const searchParams = useSearchParams();
   const [query, setQuery] = useState("");
   const [selectedFuel, setSelectedFuel] = useState<string[]>([]);
   const [selectedTransmission, setSelectedTransmission] = useState<string[]>([]);
+  const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [maxPrice, setMaxPrice] = useState<number>(10000000);
   const [sortBy, setSortBy] = useState<"preco_asc" | "preco_desc" | "recente" | "km">("recente");
   const [showFilters, setShowFilters] = useState(false);
 
   const maxPriceInData = useMemo(() => Math.max(...vehicles.map((v) => v.price), 0), [vehicles]);
+
+  // Sync with search params from Hero
+  useEffect(() => {
+    const marca = searchParams.get("marca") || "";
+    const modelo = searchParams.get("modelo") || "";
+    if (marca || modelo) {
+      setQuery(`${marca} ${modelo}`.trim());
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
+    if (maxPriceInData > 0 && maxPrice === 10000000) {
+      setMaxPrice(maxPriceInData);
+    }
+  }, [maxPriceInData, maxPrice]);
 
   const filtered = useMemo(() => {
     let result = vehicles.filter((v) => {
@@ -30,8 +61,9 @@ export default function CatalogoClient({ vehicles }: CatalogoClientProps) {
         `${v.brand?.name} ${v.model} ${v.version}`.toLowerCase().includes(query.toLowerCase());
       const matchFuel = selectedFuel.length === 0 || selectedFuel.includes(v.fuel);
       const matchTransmission = selectedTransmission.length === 0 || selectedTransmission.includes(v.transmission);
+      const matchBrand = selectedBrands.length === 0 || (v.brand?.name && selectedBrands.includes(v.brand.name.toLowerCase()));
       const matchPrice = v.price <= maxPrice;
-      return matchQuery && matchFuel && matchTransmission && matchPrice;
+      return matchQuery && matchFuel && matchTransmission && matchBrand && matchPrice;
     });
 
     if (sortBy === "preco_asc") result = [...result].sort((a, b) => a.price - b.price);
@@ -39,20 +71,13 @@ export default function CatalogoClient({ vehicles }: CatalogoClientProps) {
     if (sortBy === "km") result = [...result].sort((a, b) => a.mileage - b.mileage);
 
     return result;
-  }, [vehicles, query, selectedFuel, selectedTransmission, maxPrice, sortBy]);
-
-  const toggleFilter = <T extends string>(
-    value: T,
-    list: T[],
-    setter: (v: T[]) => void
-  ) => {
-    setter(list.includes(value) ? list.filter((f) => f !== value) : [...list, value]);
-  };
+  }, [vehicles, query, selectedFuel, selectedTransmission, selectedBrands, maxPrice, sortBy]);
 
   const clearFilters = () => {
     setQuery("");
     setSelectedFuel([]);
     setSelectedTransmission([]);
+    setSelectedBrands([]);
     setMaxPrice(maxPriceInData);
     setSortBy("recente");
   };
@@ -60,15 +85,16 @@ export default function CatalogoClient({ vehicles }: CatalogoClientProps) {
   const activeFiltersCount =
     selectedFuel.length +
     selectedTransmission.length +
+    selectedBrands.length +
     (maxPrice < maxPriceInData ? 1 : 0);
 
   const formatPrice = (p: number) =>
     new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 }).format(p);
 
   return (
-    <div>
+    <div className="space-y-8">
       {/* Search + Controls bar */}
-      <div className="flex flex-col sm:flex-row gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row gap-4">
         {/* Search input */}
         <div className="relative flex-1">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -130,65 +156,100 @@ export default function CatalogoClient({ vehicles }: CatalogoClientProps) {
             transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
             className="overflow-hidden"
           >
-            <div className="bg-slate-50 border border-slate-100 rounded-2xl p-6 mb-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {/* Combustível */}
+            <div className="bg-white border-2 border-slate-900/5 shadow-2xl shadow-slate-900/5 rounded-3xl p-8 mb-10 space-y-8">
+              {/* Marcas Section */}
               <div>
-                <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-3">Combustível</p>
-                <div className="flex flex-wrap gap-2">
-                  {FUEL_OPTIONS.map((fuel) => (
-                    <button
-                      key={fuel}
-                      onClick={() => toggleFilter(fuel, selectedFuel, setSelectedFuel)}
-                      className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${
-                        selectedFuel.includes(fuel)
-                          ? "bg-slate-900 text-white border-slate-900"
-                          : "bg-white text-slate-600 border-slate-200 hover:border-slate-400"
-                      }`}
+                <p className="text-[10px] font-black uppercase tracking-widest text-slate-950 mb-4 flex items-center justify-between">
+                  Marcas
+                  {selectedBrands.length > 0 && (
+                    <button 
+                      onClick={() => setSelectedBrands([])}
+                      className="text-[9px] text-primary hover:underline lowercase tracking-normal font-bold"
                     >
-                      {fuel}
+                      remover todas
                     </button>
-                  ))}
+                  )}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {brands.map((brand) => {
+                    const isSelected = selectedBrands.includes(brand.name.toLowerCase());
+                    return (
+                      <button
+                        key={brand.id}
+                        onClick={() => toggleFilter(brand.name.toLowerCase(), selectedBrands, setSelectedBrands)}
+                        className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider border transition-all duration-300 ${
+                          isSelected
+                            ? "bg-slate-900 text-white border-slate-900 shadow-lg shadow-black/10 -translate-y-0.5"
+                            : "bg-white text-slate-600 border-slate-100 hover:border-slate-300 hover:bg-slate-50"
+                        }`}
+                      >
+                        {brand.name}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
-              {/* Câmbio */}
-              <div>
-                <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-3">Câmbio</p>
-                <div className="flex flex-wrap gap-2">
-                  {TRANSMISSION_OPTIONS.map((t) => (
-                    <button
-                      key={t}
-                      onClick={() => toggleFilter(t, selectedTransmission, setSelectedTransmission)}
-                      className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${
-                        selectedTransmission.includes(t)
-                          ? "bg-slate-900 text-white border-slate-900"
-                          : "bg-white text-slate-600 border-slate-200 hover:border-slate-400"
-                      }`}
-                    >
-                      {t}
-                    </button>
-                  ))}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 pt-4 border-t border-slate-100">
+                {/* Combustível */}
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-950 mb-3">Combustível</p>
+                  <div className="flex flex-wrap gap-2">
+                    {FUEL_OPTIONS.map((fuel) => (
+                      <button
+                        key={fuel}
+                        onClick={() => toggleFilter(fuel, selectedFuel, setSelectedFuel)}
+                        className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${
+                          selectedFuel.includes(fuel)
+                            ? "bg-slate-900 text-white border-slate-900"
+                            : "bg-white text-slate-600 border-slate-200 hover:border-slate-400"
+                        }`}
+                      >
+                        {fuel}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
 
-              {/* Preço */}
-              <div>
-                <div className="flex justify-between items-center mb-3">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Preço máximo</p>
-                  <span className="text-xs font-black text-slate-900">{formatPrice(maxPrice)}</span>
+                {/* Câmbio */}
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-950 mb-3">Câmbio</p>
+                  <div className="flex flex-wrap gap-2">
+                    {TRANSMISSION_OPTIONS.map((t) => (
+                      <button
+                        key={t}
+                        onClick={() => toggleFilter(t, selectedTransmission, setSelectedTransmission)}
+                        className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${
+                          selectedTransmission.includes(t)
+                            ? "bg-slate-900 text-white border-slate-900"
+                            : "bg-white text-slate-600 border-slate-200 hover:border-slate-400"
+                        }`}
+                      >
+                        {t}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-                <input
-                  type="range"
-                  min={0}
-                  max={maxPriceInData}
-                  step={50000}
-                  value={maxPrice}
-                  onChange={(e) => setMaxPrice(Number(e.target.value))}
-                  className="w-full accent-primary h-1.5 rounded-full cursor-pointer"
-                />
-                <div className="flex justify-between text-[9px] text-slate-400 font-medium mt-1">
-                  <span>R$ 0</span>
-                  <span>{formatPrice(maxPriceInData)}</span>
+
+                {/* Preço */}
+                <div>
+                  <div className="flex justify-between items-center mb-3">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-950">Preço máximo</p>
+                    <span className="text-xs font-black text-slate-900">{formatPrice(maxPrice)}</span>
+                  </div>
+                  <input
+                    type="range"
+                    min={0}
+                    max={maxPriceInData}
+                    step={50000}
+                    value={maxPrice}
+                    onChange={(e) => setMaxPrice(Number(e.target.value))}
+                    className="w-full accent-primary h-1.5 rounded-full cursor-pointer"
+                  />
+                  <div className="flex justify-between text-[9px] text-slate-950 font-black mt-1 uppercase tracking-tighter">
+                    <span>R$ 0</span>
+                    <span>{formatPrice(maxPriceInData)}</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -197,7 +258,7 @@ export default function CatalogoClient({ vehicles }: CatalogoClientProps) {
       </AnimatePresence>
 
       {/* Results header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <span className="text-sm font-black text-slate-800">{filtered.length}</span>
           <span className="text-sm font-medium text-slate-500">

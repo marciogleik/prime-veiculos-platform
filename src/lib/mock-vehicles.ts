@@ -23,9 +23,9 @@ export const MOCK_VEHICLES: Vehicle[] = [
     seller_id: "default",
     slug: "porsche-911-gt3-rs-2024",
     photos: [
-      { id: "p-1", vehicle_id: "mock-1", url: "https://images.unsplash.com/photo-1614200187524-dc4b892acf16?auto=format&fit=crop&q=80&w=1800", storage_path: "", order_index: 0 },
-      { id: "p-2", vehicle_id: "mock-1", url: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&q=80&w=1800", storage_path: "", order_index: 1 },
-      { id: "p-3", vehicle_id: "mock-1", url: "https://images.unsplash.com/photo-1592198084033-aade902d1aae?auto=format&fit=crop&q=80&w=1800", storage_path: "", order_index: 2 },
+      { id: "p-1", vehicle_id: "mock-1", url: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&q=80&w=1800", storage_path: "", order_index: 0 },
+      { id: "p-2", vehicle_id: "mock-1", url: "https://images.unsplash.com/photo-1580273916550-e323be2ae537?auto=format&fit=crop&q=80&w=1800", storage_path: "", order_index: 1 },
+      { id: "p-3", vehicle_id: "mock-1", url: "https://images.unsplash.com/photo-1611859328053-3cbc9e9336bb?auto=format&fit=crop&q=80&w=1800", storage_path: "", order_index: 2 },
     ],
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),

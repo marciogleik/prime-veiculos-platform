@@ -6,11 +6,20 @@ import Link from "next/link";
 import { ShieldCheck, Zap, Handshake } from "lucide-react";
 import { Suspense } from "react";
 import SkeletonCard from "@/components/shared/SkeletonCard";
+import { createAdminClient } from "@/lib/supabase/admin";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const supabase = createAdminClient();
+  const { data: brands } = await supabase
+    .from("brands")
+    .select("*")
+    .order("name", { ascending: true });
+
+  const whatsappUrl = "https://wa.me/message/FCLJWRVPZNJHP1";
+
   return (
-    <div className="pb-20 bg-antigravity-void min-h-screen">
-      <Hero />
+    <div className="pb-20 bg-white min-h-screen">
+      <Hero brands={brands || []} />
 
       {/* Destaques Section */}
       <section className="py-32 container mx-auto px-4 animate-antigravity">
@@ -43,15 +52,15 @@ export default function HomePage() {
         </Suspense>
 
         {/* Call to Action for Empty State / Future Stock */}
-        <div className="mt-32 glass-premium p-12 md:p-20 rounded-antigravity-lg text-center overflow-hidden relative group border-white/20">
-          <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 shadow-inner-tech" />
+        <div className="mt-32 bg-slate-950 p-12 md:p-20 rounded-antigravity-lg text-center overflow-hidden relative group">
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-transparent to-primary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
           <div className="relative z-10 space-y-6">
-            <h3 className="text-3xl md:text-5xl font-display font-black tracking-tighter">BUSCANDO ALGO <span className="text-primary italic">ESPECÍFICO?</span></h3>
-            <p className="text-premium-grey mb-10 max-w-2xl mx-auto text-lg font-medium">
+            <h3 className="text-3xl md:text-5xl font-display font-black tracking-tighter text-white">BUSCANDO ALGO <span className="text-primary italic">ESPECÍFICO?</span></h3>
+            <p className="text-gray-400 mb-10 max-w-2xl mx-auto text-lg font-medium">
               Nossos consultores especializados podem encontrar o veículo dos seus sonhos através da nossa rede exclusiva.
             </p>
             <Button asChild size="lg" className="rounded-2xl h-16 px-12 font-black tracking-[0.3em] bg-white text-black hover:bg-primary hover:text-white transition-all shadow-antigravity active:scale-95">
-              <Link href="https://wa.me/5500000000000" target="_blank">
+              <Link href={whatsappUrl} target="_blank">
                 FALAR COM CONSULTOR
               </Link>
             </Button>
@@ -60,7 +69,7 @@ export default function HomePage() {
       </section>
 
       {/* Benefícios Section */}
-      <section className="bg-white dark:bg-black py-32 border-t border-white/5">
+      <section className="bg-white py-32 border-t border-gray-100">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto mb-24 space-y-4">
             <Badge variant="outline" className="rounded-full border-primary/20 text-primary font-black text-[9px] tracking-widest px-4 py-1">
@@ -80,7 +89,7 @@ export default function HomePage() {
               { icon: Zap, title: "Aprovação Rápida", desc: "Parcerias com as melhores financeiras para garantir a menor taxa do mercado e aprovação imediata." },
               { icon: Handshake, title: "Melhor Avaliação", desc: "Pagamos o preço justo pelo seu seminovo na troca, com valorização superior à média do mercado." }
             ].map((item, idx) => (
-              <div key={idx} className="glass-premium-light dark:glass-premium p-12 rounded-antigravity shadow-antigravity hover:shadow-antigravity-hover hover:-translate-y-3 transition-all duration-700 group">
+              <div key={idx} className="bg-white p-12 rounded-antigravity border border-gray-100 shadow-antigravity hover:shadow-antigravity-hover hover:-translate-y-3 transition-all duration-700 group">
                 <div className="bg-black dark:bg-primary w-16 h-16 rounded-2xl flex items-center justify-center mb-10 group-hover:scale-110 transition-transform duration-500 shadow-xl shadow-primary/20">
                   <item.icon className="text-white w-8 h-8" />
                 </div>

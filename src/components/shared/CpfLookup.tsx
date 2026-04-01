@@ -98,6 +98,9 @@ export default function CpfLookup({ onResult, className }: CpfLookupProps) {
     if (k.includes("score")) return <TrendingUp className="w-4 h-4 text-emerald-400" />;
     if (k.includes("nascimento") || k.includes("data")) return <Calendar className="w-4 h-4 text-sky-400" />;
     if (k.includes("genero") || k.includes("sexo")) return <UserRound className="w-4 h-4 text-violet-400" />;
+    if (k.includes("mae") || k.includes("filiacao")) return <User className="w-4 h-4 text-rose-400" />;
+    if (k.includes("pai")) return <User className="w-4 h-4 text-blue-400" />;
+    if (k.includes("endereco") || k.includes("logradouro") || k.includes("cep")) return <Database className="w-4 h-4 text-amber-400" />;
     return <Info className="w-4 h-4 text-gray-400" />;
   };
 
@@ -105,6 +108,76 @@ export default function CpfLookup({ onResult, className }: CpfLookupProps) {
     if (score >= 700) return "text-emerald-400";
     if (score >= 400) return "text-amber-400";
     return "text-rose-400";
+  };
+
+  const formatDate = (dateStr: string) => {
+    if (!dateStr) return "---";
+    // Tenta converter se for YYYY-MM-DD
+    if (dateStr.includes("-")) {
+      const [y, m, d] = dateStr.split("-");
+      if (y.length === 4) return `${d}/${m}/${y}`;
+    }
+    return dateStr;
+  };
+
+  const Gauge = ({ score }: { score: number | null }) => {
+    const s = score || 0;
+    const radius = 80;
+    const stroke = 12;
+    const normalizedRadius = radius - stroke * 2;
+    const circumference = normalizedRadius * 2 * Math.PI;
+    const strokeDashoffset = circumference - (s / 1000) * (circumference * 0.75);
+    
+    // Color based on score
+    const color = s >= 700 ? "#10b981" : (s >= 400 ? "#fbbf24" : "#f43f5e");
+
+    return (
+      <div className="relative flex flex-col items-center justify-center pt-4">
+        <svg
+          height={radius * 2}
+          width={radius * 2}
+          className="transform -rotate-[225deg]"
+        >
+          {/* Background Track */}
+          <circle
+            stroke="rgba(255,255,255,0.05)"
+            fill="transparent"
+            strokeWidth={stroke}
+            strokeDasharray={circumference + " " + circumference}
+            style={{ strokeDashoffset: circumference * 0.25 }}
+            strokeLinecap="round"
+            r={normalizedRadius}
+            cx={radius}
+            cy={radius}
+          />
+          {/* Progress Track */}
+          <motion.circle
+            stroke={color}
+            fill="transparent"
+            strokeWidth={stroke}
+            strokeDasharray={circumference + " " + circumference}
+            initial={{ strokeDashoffset: circumference }}
+            animate={{ strokeDashoffset: strokeDashoffset }}
+            transition={{ duration: 1.5, ease: "easeOut" }}
+            strokeLinecap="round"
+            r={normalizedRadius}
+            cx={radius}
+            cy={radius}
+            className="drop-shadow-[0_0_8px_rgba(255,255,255,0.2)]"
+          />
+        </svg>
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-center mt-2">
+            <motion.span 
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className={cn("text-4xl font-display font-black tracking-tighter", s === 0 ? "text-white/20" : getScoreColor(s))}
+            >
+              {score !== null ? score : "---"}
+            </motion.span>
+            <span className="text-[8px] font-black text-white/20 tracking-[0.2em] uppercase">Pontos</span>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -165,108 +238,129 @@ export default function CpfLookup({ onResult, className }: CpfLookupProps) {
 
                 <div className="p-6 sm:p-10 lg:p-12 space-y-10">
                    {/* Name & Identity - Mobile First */}
-                   <div className="flex flex-col lg:flex-row gap-6 lg:gap-10 items-center lg:items-start">
+                   <div className="flex flex-col lg:flex-row gap-6 lg:gap-10 items-center lg:items-start group">
                       <div className="relative shrink-0">
-                        <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-primary/20 to-transparent flex items-center justify-center border border-white/10 p-1">
+                        <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary/30 to-transparent flex items-center justify-center border border-white/10 p-1.5 shadow-[0_0_30px_rgba(234,30,73,0.1)] transition-transform duration-500 group-hover:scale-105">
                           <div className="w-full h-full rounded-full bg-black flex items-center justify-center border border-white/5">
-                            <User className="w-8 h-8 sm:w-10 sm:h-10 text-white/20" />
+                            <User className="w-10 h-10 text-white/20 group-hover:text-primary/40 transition-colors" />
                           </div>
                         </div>
-                        <div className="absolute -bottom-1 -right-1 bg-emerald-500 rounded-full p-1 border-2 border-black">
-                          <CheckCircle2 className="w-3 h-3 text-white" />
+                        <div className="absolute -bottom-1 -right-1 bg-emerald-500 rounded-full p-1.5 border-2 border-black shadow-lg">
+                          <CheckCircle2 className="w-4 h-4 text-white" />
                         </div>
                       </div>
 
-                      <div className="flex-1 text-center lg:text-left space-y-4 min-w-0 w-full overflow-hidden">
-                         <div className="space-y-1">
-                            <p className="text-[10px] font-black text-primary tracking-[0.4em] uppercase">Resultados</p>
-                            <div className="flex flex-col lg:flex-row lg:items-center gap-2 lg:gap-4 justify-center lg:justify-start">
-                                <h2 className="text-xl sm:text-2xl lg:text-3xl font-display font-black text-white leading-[1.1] max-w-full break-words">
+                      <div className="flex-1 text-center lg:text-left space-y-4 min-w-0 w-full overflow-hidden self-center">
+                         <div className="space-y-1.5">
+                            <p className="text-[10px] font-black text-primary tracking-[0.4em] uppercase opacity-70">Resultado Encontrado</p>
+                            <div className="flex flex-col lg:flex-row lg:items-center gap-3 lg:gap-6 justify-center lg:justify-start">
+                                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-display font-black text-white leading-none max-w-full break-words tracking-tight">
                                    {result.nome}
                                 </h2>
-                                  <Button 
-                                    variant="ghost" 
-                                    size="icon" 
-                                    className="h-8 w-8 rounded-lg text-white/20 hover:text-white hover:bg-white/5 mx-auto lg:mx-0 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity" 
-                                    onClick={() => copyToClipboard(result.nome)}
-                                  >
-                                  <Copy className="w-4 h-4" />
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon" 
+                                  className="h-10 w-10 rounded-xl text-white/30 hover:text-white hover:bg-white/5 transition-all active:scale-90" 
+                                  onClick={() => copyToClipboard(result.nome)}
+                                >
+                                  <Copy className="w-5 h-5" />
                                 </Button>
                             </div>
                          </div>
                          <div className="flex justify-center lg:justify-start">
-                           <div className="px-4 py-2 rounded-xl bg-white/5 border border-white/5 text-[10px] text-white/50 font-mono tracking-widest flex items-center gap-3">
+                           <div className="px-5 py-2.5 rounded-2xl bg-white/5 border border-white/10 text-xs text-white/60 font-mono tracking-widest flex items-center gap-3 ring-1 ring-white/5">
                               {cpf}
-                              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+                              <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.7)] animate-pulse" />
                            </div>
                          </div>
                       </div>
                    </div>
 
-                   {/* Stats Grid - Responsive Grid */}
-                   <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6">
+                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-8 items-stretch">
                       {/* Score Card */}
-                      <div className="col-span-1 md:col-span-2 p-6 sm:p-8 rounded-3xl bg-white/[0.03] border border-white/5 flex flex-col justify-between group hover:border-primary/30 transition-all min-h-[160px]">
+                      <div className="col-span-1 md:col-span-2 p-8 sm:p-10 rounded-[2.5rem] bg-gradient-to-b from-white/[0.04] to-transparent border border-white/10 flex flex-col items-center justify-between group hover:border-primary/40 transition-all duration-500 min-h-[300px]">
+                          <div className="w-full flex justify-between items-start mb-4">
+                              <div className="space-y-1">
+                                <p className="text-[9px] font-black text-white/40 uppercase tracking-[0.3em]">Potencial Financeiro</p>
+                                <h3 className="text-xs font-black text-white uppercase tracking-tight">Escore de Consultoria</h3>
+                              </div>
+                              <div className="w-12 h-12 rounded-2xl bg-black flex items-center justify-center border border-white/10 group-hover:shadow-[0_0_20px_rgba(234,30,73,0.2)] transition-all">
+                                <Zap className="w-6 h-6 text-primary" />
+                              </div>
+                          </div>
+                          
+                          <div className="py-2 scale-110">
+                            <Gauge score={result.score} />
+                          </div>
+                          
+                          <div className="w-full flex justify-between items-end mt-8 pt-6 border-t border-white/5">
+                             <div className="flex flex-col gap-1.5">
+                                <span className="text-[8px] font-black text-white/30 uppercase tracking-[0.2em]">Qualificação</span>
+                                <span className={cn("text-[11px] font-black uppercase tracking-widest flex items-center gap-2", 
+                                  result.score === null ? "text-white/40" : 
+                                  result.score >= 700 ? "text-emerald-400" : 
+                                  (result.score >= 400 ? "text-amber-400" : "text-rose-400"))}>
+                                   <Shield className="w-3 h-3" />
+                                   {result.score === null ? "DADO INDISPONÍVEL" :
+                                    result.score >= 700 ? "CRÉDITO EXCELENTE" : 
+                                    (result.score >= 400 ? "CONFIÁVEL" : "RISCO MÉDIO")}
+                                </span>
+                             </div>
+                             <div className="text-right">
+                                <span className="text-[8px] font-black text-white/30 uppercase tracking-[0.2em]">Procedência</span>
+                                <p className="text-[10px] font-black text-white/60 uppercase tracking-widest">SISTEMA APICPF OFICIAL</p>
+                             </div>
+                          </div>
+                      </div>
+
+                      {/* Situação Cadastral Card */}
+                      <div className="p-8 rounded-[2.5rem] bg-white/[0.03] border border-white/5 hover:bg-white/[0.06] hover:border-white/20 transition-all duration-300 flex flex-col justify-between min-h-[180px] group">
                          <div className="flex justify-between items-start">
-                             <div className="space-y-1">
-                               <p className="text-[8px] font-black text-white/30 uppercase tracking-[0.2em]">Estimativa de Crédito</p>
-                               <h3 className="text-[10px] font-bold text-white/60">CREDIT SCORE</h3>
-                             </div>
-                             <div className="w-10 h-10 rounded-xl bg-black flex items-center justify-center border border-white/10">
-                               <TrendingUp className="w-5 h-5 text-emerald-400" />
-                             </div>
+                            <p className="text-[9px] font-black text-white/30 uppercase tracking-[0.3em]">RFB STATUS</p>
+                            <div className="w-12 h-12 rounded-2xl bg-black flex items-center justify-center border border-white/5 group-hover:border-primary/30 transition-all text-emerald-400">
+                               <ShieldCheck className="w-6 h-6" />
+                            </div>
                          </div>
-                         
-                         <div className="flex flex-col gap-4 mt-6">
-                            <div className="flex items-end justify-between gap-4">
-                               <div className="flex items-end gap-2">
-                                  <span className={cn("text-4xl sm:text-5xl font-display font-black leading-none", result.score ? getScoreColor(result.score) : "text-white/10")}>
-                                     {result.score || "---"}
-                                  </span>
-                                  <span className="text-[10px] font-black text-white/20 mb-1">PTS</span>
-                               </div>
-                               <span className="text-[8px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">Status: Confiável</span>
-                            </div>
-                            <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
-                               <motion.div 
-                                  initial={{ width: 0 }}
-                                  animate={{ width: result.score ? `${result.score / 10}%` : "0%" }}
-                                  className={cn("h-full", result.score ? (result.score >= 700 ? "bg-emerald-500" : (result.score >= 400 ? "bg-amber-500" : "bg-rose-500")) : "bg-white/10")}
-                               />
-                            </div>
+                         <div className="flex flex-col gap-1 mt-4">
+                            <span className="text-[8px] font-bold text-white/20 uppercase tracking-widest">Situação Cadastral</span>
+                            <p className="text-xl font-display font-black text-white uppercase tracking-tight">{result.situacao_cadastral || "REGULAR"}</p>
                          </div>
                       </div>
 
-                      {/* Detail Cards */}
+                      {/* Dynamic Cards */}
                       {Object.entries({
                         ...(result.data || {}),
                         ...result,
                       }).map(([key, value]) => {
-                          if (["nome", "situacao_cadastral", "mensagem", "is_not_found", "data", "code", "cpf", "score"].includes(key)) return null;
+                          if (["nome", "situacao_cadastral", "mensagem", "is_not_found", "data", "code", "cpf", "score", "protocolo"].includes(key)) return null;
                           if (value === null || value === undefined || value === "") return null;
                           if (typeof value === "object") return null;
 
-                          const displayValue = String(value);
+                          let displayValue = String(value);
+                          if (key.toLowerCase().includes("data")) displayValue = formatDate(displayValue);
                           const displayKey = key.replace(/_/g, " ").toUpperCase();
 
                           return (
-                            <div key={key} className="p-6 sm:p-8 rounded-3xl bg-white/[0.03] border border-white/5 hover:bg-white/[0.06] transition-all flex flex-col justify-between min-h-[160px] group">
+                            <div key={key} className="p-8 rounded-[2.5rem] bg-white/[0.03] border border-white/5 hover:bg-white/[0.06] hover:border-white/20 transition-all duration-300 flex flex-col justify-between min-h-[180px] group w-full">
                                <div className="flex justify-between items-start">
-                                  <p className="text-[8px] font-black text-white/30 uppercase tracking-[0.2em]">{displayKey}</p>
-                                  <div className="w-10 h-10 rounded-xl bg-black flex items-center justify-center border border-white/5 group-hover:border-white/10 transition-all text-white/40">
+                                  <p className="text-[9px] font-black text-white/30 uppercase tracking-[0.3em]">{displayKey}</p>
+                                  <div className="w-12 h-12 rounded-2xl bg-black flex items-center justify-center border border-white/5 group-hover:border-primary/30 transition-all text-white/40">
                                      {getIconForKey(key)}
                                   </div>
                                </div>
-                               <div className="flex items-center justify-between mt-4 overflow-hidden">
-                                  <p className="text-lg sm:text-xl font-display font-black text-white/80 truncate">{displayValue}</p>
+                               <div className="flex flex-col gap-1 mt-4 overflow-hidden">
+                                  <span className="text-[8px] font-bold text-white/20 uppercase tracking-widest">Valor do Dado</span>
+                                  <div className="flex items-center justify-between group/row">
+                                    <p className="text-xl font-display font-black text-white tracking-tight truncate pr-4">{displayValue}</p>
                                     <Button 
                                       variant="ghost" 
                                       size="icon" 
-                                      className="h-6 w-6 text-white/10 hover:text-white ml-2 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity"
+                                      className="h-8 w-8 text-white/20 hover:text-white hover:bg-white/5 transition-all active:scale-90"
                                       onClick={() => copyToClipboard(displayValue)}
                                     >
-                                    <Copy className="w-3 h-3" />
-                                  </Button>
+                                      <Copy className="w-4 h-4" />
+                                    </Button>
+                                  </div>
                                </div>
                             </div>
                           );

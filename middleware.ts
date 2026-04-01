@@ -32,8 +32,30 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
+  // RBAC: Check if user is admin if they try to access /dashboard
+  if (isAdminRoute && user) {
+    const { data: seller } = await supabase
+      .from('sellers')
+      .select('is_admin')
+      .eq('id', user.id)
+      .single()
+
+    if (!seller?.is_admin) {
+      // Redirect regular users to their profile page instead of the dashboard
+      return NextResponse.redirect(new URL('/meu-perfil', request.url))
+    }
+  }
+
   if (isLoginPage && user) {
-    return NextResponse.redirect(new URL('/dashboard', request.url))
+    // Correctly redirect after login based on role
+    const { data: seller } = await supabase
+      .from('sellers')
+      .select('is_admin')
+      .eq('id', user.id)
+      .single()
+
+    const redirectPath = seller?.is_admin ? '/dashboard' : '/meu-perfil'
+    return NextResponse.redirect(new URL(redirectPath, request.url))
   }
 
   return supabaseResponse

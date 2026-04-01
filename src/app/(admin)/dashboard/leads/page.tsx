@@ -27,10 +27,10 @@ export default async function LeadsPage() {
   return (
     <div className="space-y-8">
       <div>
-        <p className="text-sm font-black text-gray-400 uppercase tracking-widest mb-1">CRM</p>
-        <h1 className="text-4xl font-display font-black tracking-tighter">Gestão de Leads</h1>
-        <p className="text-gray-400 mt-2 font-medium">
-          {leads.length} {leads.length === 1 ? "lead registrado" : "leads registrados"}
+        <p className="text-[11px] font-black text-gray-500 uppercase tracking-[0.3em] mb-2 leading-none">CRM</p>
+        <h1 className="text-4xl sm:text-5xl font-black tracking-tight text-gray-950">Gestão de Leads</h1>
+        <p className="text-gray-600 mt-3 font-bold text-sm">
+          {leads.length} {leads.length === 1 ? "lead registrado" : "leads registrados"} em sua base
         </p>
       </div>
 

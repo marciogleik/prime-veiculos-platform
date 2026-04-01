@@ -150,13 +150,13 @@ export default async function VeiculoPage({ params }: VeiculoPageProps) {
                 sellerWhatsapp={v.seller?.whatsapp || "00000000000"}
               />
               <Button asChild variant="outline" className="w-full h-14 font-bold border-2 rounded-xl gap-2 hover:bg-green-50 hover:border-green-500 hover:text-green-600">
-                <a href={`https://wa.me/55${v.seller?.whatsapp.replace(/\D/g, "")}`} target="_blank">
-                  <Phone className="w-5 h-5" />
+                <a href={`https://wa.me/55${v.seller?.whatsapp?.replace(/\D/g, "") || "00000000000"}`} target="_blank">
+                  <Phone className="size-5" />
                   WHATSAPP DIRETO
                 </a>
               </Button>
               <Button variant="ghost" className="w-full h-12 font-bold gap-2 text-gray-400">
-                <Share2 className="w-4 h-4" />
+                <Share2 className="size-4" />
                 Compartilhar Veículo
               </Button>
             </div>

@@ -27,10 +27,10 @@ export default function DashboardCharts() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
       <Card className="rounded-3xl border-none shadow-sm">
-        <CardHeader>
-          <CardTitle className="text-lg font-display font-bold">Leads por Período</CardTitle>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-xl font-black text-gray-900 uppercase tracking-tight">Leads por Período</CardTitle>
         </CardHeader>
-        <CardContent className="h-[300px] w-full">
+        <CardContent className="h-[320px] w-full pt-4">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={data}>
               <defs>
@@ -39,26 +39,32 @@ export default function DashboardCharts() {
                   <stop offset="95%" stopColor="#e11d48" stopOpacity={0}/>
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f1f1" />
+              <CartesianGrid strokeDasharray="4 4" vertical={false} stroke="#e2e8f0" />
               <XAxis 
                 dataKey="name" 
                 axisLine={false} 
                 tickLine={false} 
-                tick={{ fontSize: 12, fill: "#94a3b8" }} 
+                tick={{ fontSize: 11, fill: "#111827", fontWeight: 800 }} 
+                dy={10}
               />
               <YAxis 
                 axisLine={false} 
                 tickLine={false} 
-                tick={{ fontSize: 12, fill: "#94a3b8" }} 
+                tick={{ fontSize: 11, fill: "#111827", fontWeight: 800 }} 
               />
               <Tooltip 
-                contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)" }}
+                contentStyle={{ 
+                  borderRadius: "20px", 
+                  border: "none", 
+                  boxShadow: "0 25px 50px -12px rgb(0 0 0 / 0.15)",
+                  padding: "12px 16px"
+                }}
               />
               <Area 
                 type="monotone" 
                 dataKey="leads" 
                 stroke="#e11d48" 
-                strokeWidth={3}
+                strokeWidth={4}
                 fillOpacity={1} 
                 fill="url(#colorLeads)" 
               />
@@ -67,34 +73,40 @@ export default function DashboardCharts() {
         </CardContent>
       </Card>
 
-      <Card className="rounded-3xl border-none shadow-sm">
-        <CardHeader>
-          <CardTitle className="text-lg font-display font-bold">Distribuição de Status</CardTitle>
+      <Card className="rounded-[2.5rem] border-none shadow-sm">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-xl font-black text-gray-900 uppercase tracking-tight">Distribuição de Status</CardTitle>
         </CardHeader>
-        <CardContent className="h-[300px] w-full">
+        <CardContent className="h-[320px] w-full pt-4">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f1f1" />
+              <CartesianGrid strokeDasharray="4 4" vertical={false} stroke="#e2e8f0" />
               <XAxis 
                 dataKey="name" 
                 axisLine={false} 
                 tickLine={false} 
-                tick={{ fontSize: 12, fill: "#94a3b8" }} 
+                tick={{ fontSize: 11, fill: "#111827", fontWeight: 800 }} 
+                dy={10}
               />
               <YAxis 
                 axisLine={false} 
                 tickLine={false} 
-                tick={{ fontSize: 12, fill: "#94a3b8" }} 
+                tick={{ fontSize: 11, fill: "#111827", fontWeight: 800 }} 
               />
               <Tooltip 
                 cursor={{ fill: "#f8fafc" }}
-                contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)" }}
+                contentStyle={{ 
+                  borderRadius: "20px", 
+                  border: "none", 
+                  boxShadow: "0 25px 50px -12px rgb(0 0 0 / 0.15)",
+                  padding: "12px 16px"
+                }}
               />
               <Bar 
                 dataKey="leads" 
                 fill="#000000" 
-                radius={[6, 6, 0, 0]} 
-                barSize={32}
+                radius={[8, 8, 0, 0]} 
+                barSize={36}
               />
             </BarChart>
           </ResponsiveContainer>

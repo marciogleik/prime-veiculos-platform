@@ -72,28 +72,34 @@ export default async function DashboardPage() {
   ];
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-6 sm:space-y-10">
       {/* Page Header */}
-      <div>
-        <p className="text-sm font-black text-gray-400 uppercase tracking-widest mb-1">Visão Geral</p>
-        <h1 className="text-4xl font-display font-black tracking-tighter">Dashboard</h1>
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+        <div>
+          <p className="text-[11px] sm:text-xs font-black text-gray-500 uppercase tracking-[0.3em] mb-2 leading-none">Visão Geral</p>
+          <h1 className="text-4xl sm:text-5xl font-black tracking-tight text-gray-950">Dashboard</h1>
+        </div>
+        <div className="flex items-center gap-3 text-[11px] font-black uppercase tracking-widest text-gray-600 bg-white px-5 py-3 rounded-2xl border border-gray-100 shadow-sm self-start sm:self-auto">
+          <Clock className="w-4 h-4 text-primary" />
+          Sincronizado agora
+        </div>
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
         {stats.map((stat, i) => (
-          <Card key={i} className="rounded-3xl border-none shadow-sm hover:shadow-md transition-all hover:-translate-y-1 duration-300">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-5">
-                <div className={`${stat.color} p-3 rounded-2xl`}>
-                  <stat.icon className="text-white w-5 h-5" />
+          <Card key={i} className="rounded-[2rem] border-none shadow-sm hover:shadow-md transition-all hover:-translate-y-1 duration-300">
+            <CardContent className="p-6 sm:p-7">
+              <div className="flex items-center justify-between mb-6 sm:mb-7">
+                <div className={`${stat.color} p-3 sm:p-4 rounded-2xl sm:rounded-[1.5rem] shadow-lg shadow-black/10`}>
+                  <stat.icon className="text-white size-5 sm:size-6" />
                 </div>
-                <Badge variant="secondary" className="bg-emerald-50 text-emerald-700 font-black text-[10px] rounded-full">
+                <Badge variant="secondary" className="bg-emerald-50 text-emerald-700 font-black text-[10px] sm:text-[11px] rounded-full px-3 py-1">
                   {stat.trend}
                 </Badge>
               </div>
-              <p className="text-gray-400 text-xs font-black uppercase tracking-wider mb-1">{stat.label}</p>
-              <p className="text-3xl font-display font-black">{stat.value}</p>
+              <p className="text-gray-600 text-[10px] sm:text-[11px] font-black uppercase tracking-[0.2em] mb-2">{stat.label}</p>
+              <p className="text-3xl sm:text-4xl font-black text-gray-950">{stat.value}</p>
             </CardContent>
           </Card>
         ))}
@@ -103,51 +109,60 @@ export default async function DashboardPage() {
       <DashboardCharts />
 
       {/* Recent Activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <Card className="lg:col-span-2 rounded-3xl border-none shadow-sm overflow-hidden">
-          <CardHeader className="p-8 pb-0 flex flex-row items-center justify-between">
-            <CardTitle className="text-xl font-display font-black">Últimos Leads</CardTitle>
-            <Button asChild variant="ghost" className="text-primary font-bold text-sm h-9 rounded-xl">
-              <Link href="/dashboard/leads">Ver Todos <ChevronRight className="ml-1 w-4 h-4" /></Link>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
+        <Card className="lg:col-span-2 rounded-[2rem] border-none shadow-sm overflow-hidden">
+          <CardHeader className="p-6 sm:p-8 pb-0 flex flex-row items-center justify-between">
+            <CardTitle className="text-lg sm:text-xl font-display font-black">Últimos Leads</CardTitle>
+            <Button asChild variant="ghost" className="text-primary font-bold text-xs sm:text-sm h-8 sm:h-9 rounded-xl px-2 sm:px-4">
+              <Link href="/dashboard/leads" className="flex items-center">
+                Ver Todos <ChevronRight className="ml-1 w-3 h-3 sm:w-4 sm:h-4" />
+              </Link>
             </Button>
           </CardHeader>
-          <CardContent className="p-0 mt-4">
-            <Table>
-              <TableHeader>
-                <TableRow className="hover:bg-transparent border-gray-50">
-                  <TableHead className="px-8 font-black uppercase text-[10px] tracking-widest">Cliente</TableHead>
-                  <TableHead className="font-black uppercase text-[10px] tracking-widest">Veículo</TableHead>
-                  <TableHead className="font-black uppercase text-[10px] tracking-widest text-center">Status</TableHead>
-                  <TableHead className="px-8 font-black uppercase text-[10px] tracking-widest text-right">Quando</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {recentLeads.map((lead: any) => {
-                  const s = STATUS_CONFIG[lead.status] ?? STATUS_CONFIG.novo;
-                  return (
-                    <TableRow key={lead.id} className="border-gray-50 hover:bg-gray-50/50 transition-colors">
-                      <TableCell className="px-8 py-4 font-bold">{lead.customer_name}</TableCell>
-                      <TableCell className="py-4 text-gray-500 font-medium text-sm">
-                        {lead.vehicle?.brand?.name} {lead.vehicle?.model}
-                      </TableCell>
-                      <TableCell className="py-4 text-center">
-                        <Badge className={cn("font-black text-[10px] rounded-full", s.className)}>
-                          {s.label}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="px-8 py-4 text-right text-gray-400 text-xs font-medium">
-                        {timeAgo(lead.created_at)}
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
+          <CardContent className="p-0 mt-4 overflow-x-auto">
+            <div className="min-w-[600px] lg:min-w-0">
+              <Table>
+                <TableHeader>
+                  <TableRow className="hover:bg-transparent border-gray-100">
+                    <TableHead className="px-8 sm:px-10 font-black uppercase text-[10px] sm:text-[11px] tracking-[0.2em] text-gray-500 py-6">Cliente</TableHead>
+                    <TableHead className="font-black uppercase text-[10px] sm:text-[11px] tracking-[0.2em] text-gray-500 py-6">Veículo</TableHead>
+                    <TableHead className="font-black uppercase text-[10px] sm:text-[11px] tracking-[0.2em] text-gray-500 text-center py-6">Status</TableHead>
+                    <TableHead className="px-8 sm:px-10 font-black uppercase text-[10px] sm:text-[11px] tracking-[0.2em] text-gray-500 text-right py-6">Quando</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {recentLeads.map((lead: any) => {
+                    const s = STATUS_CONFIG[lead.status] ?? STATUS_CONFIG.novo;
+                    return (
+                      <TableRow key={lead.id} className="border-gray-100 hover:bg-gray-50/50 transition-colors group">
+                        <TableCell className="px-8 sm:px-10 py-6">
+                          <p className="font-black text-sm sm:text-base text-gray-900 leading-tight">{lead.customer_name}</p>
+                          <p className="text-[11px] text-primary font-bold mt-1 opacity-0 group-hover:opacity-100 transition-opacity">Detalhes técnicos →</p>
+                        </TableCell>
+                        <TableCell className="py-6">
+                          <div className="text-gray-700 font-bold text-xs sm:text-sm truncate max-w-[180px]">
+                            {lead.vehicle?.brand?.name} {lead.vehicle?.model}
+                          </div>
+                        </TableCell>
+                        <TableCell className="py-6 text-center">
+                          <Badge className={cn("font-black text-[10px] sm:text-[11px] tracking-widest rounded-md px-3 py-1 shadow-sm", s.className)}>
+                            {s.label}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="px-8 sm:px-10 py-6 text-right text-gray-600 text-xs font-bold">
+                          {timeAgo(lead.created_at)}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
           </CardContent>
         </Card>
 
         {/* Quick actions / Stock alert */}
-        <Card className="rounded-3xl border-none shadow-sm bg-black text-white p-8">
+        <Card className="rounded-[2.5rem] border-none shadow-sm bg-black text-white p-6 sm:p-8 flex flex-col justify-between">
           <div className="flex items-center gap-3 mb-6">
             <AlertCircle className="text-primary w-5 h-5" />
             <h3 className="text-lg font-display font-black">Ações Rápidas</h3>
@@ -156,6 +171,7 @@ export default async function DashboardPage() {
             {[
               { label: "Adicionar Veículo", href: "/dashboard/veiculos/novo", color: "bg-primary" },
               { label: "Ver Todos os Leads", href: "/dashboard/leads", color: "bg-white/10" },
+              { label: "Gerenciar Equipe", href: "/dashboard/vendedores", color: "bg-white/10" },
               { label: "Consulta CPF", href: "/dashboard/consulta-cpf", color: "bg-white/10" },
             ].map((a) => (
               <Link key={a.href} href={a.href}

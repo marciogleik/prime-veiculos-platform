@@ -9,7 +9,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 
-export default function Hero() {
+interface HeroProps {
+  brands: { id: string; name: string }[];
+}
+
+export default function Hero({ brands }: HeroProps) {
   const router = useRouter();
   const [marca, setMarca] = useState<string | undefined>(undefined);
   const [modelo, setModelo] = useState("");
@@ -82,10 +86,15 @@ export default function Hero() {
                   <SelectValue placeholder="Marca" />
                 </SelectTrigger>
                 <SelectContent className="bg-black/90 backdrop-blur-3xl border-white/10 text-white rounded-2xl">
-                  <SelectItem value="toyota">Toyota</SelectItem>
-                  <SelectItem value="bmw">BMW</SelectItem>
-                  <SelectItem value="mercedes">Mercedes-Benz</SelectItem>
-                  <SelectItem value="audi">Audi</SelectItem>
+                  {brands.length > 0 ? (
+                    brands.map((b) => (
+                      <SelectItem key={b.id} value={b.name.toLowerCase()}>
+                        {b.name}
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <SelectItem value="placeholder" disabled>Nenhuma marca encontrada</SelectItem>
+                  )}
                 </SelectContent>
               </Select>
             </div>
@@ -108,7 +117,7 @@ export default function Hero() {
             >
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-shimmer" />
               BUSCAR
-              <Search className="ml-3 w-5 h-5 group-hover:scale-110 transition-transform" />
+              <Search className="ml-3 size-5 group-hover:scale-110 transition-transform" />
             </Button>
           </motion.div>
 
