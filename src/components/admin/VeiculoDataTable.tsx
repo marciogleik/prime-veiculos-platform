@@ -140,11 +140,16 @@ export default function VeiculoDataTable({ initialData }: VeiculoDataTableProps)
                 <TableCell className="px-8 py-5 text-right">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="rounded-xl hover:bg-slate-100 transition-colors" disabled={isDeleting === v.id}>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="rounded-xl w-10 h-10 bg-white border border-gray-100 shadow-sm hover:bg-slate-50 hover:border-primary/30 hover:shadow-md hover:scale-105 transition-all duration-300" 
+                        disabled={isDeleting === v.id}
+                      >
                         {isDeleting === v.id ? (
                           <Loader2 className="w-5 h-5 text-primary animate-spin" />
                         ) : (
-                          <MoreHorizontal className="w-5 h-5 text-gray-950" />
+                          <MoreHorizontal className="w-5 h-5 text-slate-400" />
                         )}
                       </Button>
                     </DropdownMenuTrigger>

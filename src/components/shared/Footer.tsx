@@ -18,7 +18,7 @@ export default function Footer() {
               Sua concessionária premium de confiança. Qualidade, transparência e os melhores veículos do mercado.
             </p>
             <div className="flex gap-4">
-              <a href="https://www.instagram.com/primeveiculos_pva/" target="_blank" className="bg-white/10 p-2 rounded-full hover:bg-primary transition-colors">
+              <a href="https://www.instagram.com/primeveiculos_ab?igsh=bjFtb3ZzbDZwNzV1" target="_blank" className="bg-white/10 p-2 rounded-full hover:bg-primary transition-colors">
                 <Instagram className="w-5 h-5" />
               </a>
               <a href="https://wa.me/message/FCLJWRVPZNJHP1" target="_blank" className="bg-white/10 p-2 rounded-full hover:bg-emerald-500 transition-colors">
@@ -63,7 +63,7 @@ export default function Footer() {
             <ul className="space-y-4 text-gray-100">
               <li className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 text-primary shrink-0" />
-                <span>Av. Principal, 1000 - Centro, Cidade - UF</span>
+                <span>Av. Araguaia, 380 - Centro, Água Boa - MT, 78635-000</span>
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="w-5 h-5 text-primary shrink-0" />

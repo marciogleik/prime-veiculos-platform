@@ -59,10 +59,10 @@ export default function Hero({ brands }: HeroProps) {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="text-5xl sm:text-6xl md:text-8xl font-display font-black leading-[0.95] mb-8 tracking-tighter"
+            className="text-5xl sm:text-6xl md:text-8xl font-display font-black leading-[0.95] mb-8 tracking-tighter uppercase"
           >
-            ENCONTRE O SEU <br />
-            <span className="text-primary italic">PRIMEIRO</span> NÍVEL.
+            Seu próximo carro <br />
+            está na <span className="text-primary italic">Prime Veículos</span>
           </motion.h1>
 
           <motion.p 
@@ -71,7 +71,7 @@ export default function Hero({ brands }: HeroProps) {
             transition={{ delay: 0.6 }}
             className="text-lg md:text-xl text-gray-400 mb-12 max-w-lg leading-relaxed"
           >
-            A curadoria mais rigorosa de veículos premium do Brasil. Qualidade garantida e procedência impecável para quem não aceita menos que a excelência.
+            Seminovos selecionados, procedência garantida e as melhores condições pra você sair de carro novo com segurança e tranquilidade. Av. Araguaia, 380 - Centro, Água Boa - MT, 78635-000
           </motion.p>
 
           <motion.div 

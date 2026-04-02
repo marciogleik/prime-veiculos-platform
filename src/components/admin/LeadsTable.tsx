@@ -29,10 +29,12 @@ import {
   Search,
   RefreshCw,
   Loader2,
+  Trash2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
+import { deleteLead } from "@/app/(admin)/dashboard/leads/actions";
 
 type Lead = {
   id: string;
@@ -101,6 +103,20 @@ export default function LeadsTable({ initialLeads }: { initialLeads: Lead[] }) {
         prev.map((l) => (l.id === leadId ? { ...l, status: newStatus } : l))
       );
       toast.success("Status atualizado!");
+    });
+  };
+
+  const handleDelete = async (id: string, name: string) => {
+    if (!confirm(`Tem certeza que deseja excluir o lead de ${name}?`)) return;
+
+    startTransition(async () => {
+      try {
+        await deleteLead(id);
+        setLeads((prev) => prev.filter((l) => l.id !== id));
+        toast.success("Lead excluído");
+      } catch (e) {
+        toast.error("Erro ao excluir lead");
+      }
     });
   };
 
@@ -239,11 +255,16 @@ export default function LeadsTable({ initialLeads }: { initialLeads: Lead[] }) {
                         </Button>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="rounded-xl h-10 w-10 hover:bg-slate-100" disabled={isPending}>
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="rounded-xl h-10 w-10 bg-white border border-gray-100 shadow-sm hover:bg-slate-50 hover:border-primary/20 hover:shadow-md hover:scale-105 transition-all duration-300" 
+                              disabled={isPending}
+                            >
                               {isPending ? (
                                 <Loader2 className="w-5 h-5 text-primary animate-spin" />
                               ) : (
-                                <MoreHorizontal className="w-5 h-5 text-gray-600" />
+                                <MoreHorizontal className="w-5 h-5 text-gray-400" />
                               )}
                             </Button>
                           </DropdownMenuTrigger>
@@ -271,6 +292,16 @@ export default function LeadsTable({ initialLeads }: { initialLeads: Lead[] }) {
                                 {t.label}
                               </DropdownMenuItem>
                             ))}
+                            <DropdownMenuSeparator className="bg-gray-50 my-1" />
+                            <DropdownMenuItem
+                              onClick={() => handleDelete(lead.id, lead.customer_name)}
+                              className="rounded-xl px-4 py-3 cursor-pointer font-bold text-sm gap-3 text-red-500 focus:bg-red-50 focus:text-red-600"
+                            >
+                               <div className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center text-red-500">
+                                  <Trash2 className="w-4 h-4" />
+                               </div>
+                               Excluir Permanentemente
+                            </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </div>
@@ -326,26 +357,40 @@ export default function LeadsTable({ initialLeads }: { initialLeads: Lead[] }) {
                    {/* More Options */}
                    <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="outline" size="icon" className="h-12 w-12 rounded-2xl border-gray-100">
+                        <Button 
+                          variant="outline" 
+                          size="icon" 
+                          className="h-12 w-12 rounded-2xl bg-white border-gray-100 shadow-sm hover:shadow-md hover:scale-105 transition-all duration-300"
+                        >
                           <MoreHorizontal className="w-5 h-5 text-gray-400" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="w-56 rounded-[1.5rem] p-2">
                         <DropdownMenuLabel className="px-4 py-2 text-[10px] font-black uppercase text-gray-400 tracking-widest mb-1">Gerenciar Lead</DropdownMenuLabel>
                         <DropdownMenuSeparator className="bg-gray-50 mb-1" />
-                        {STATUS_TRANSITIONS.map((t) => (
-                          <DropdownMenuItem
-                            key={t.value}
-                            className="rounded-xl px-4 py-3 font-bold text-sm flex gap-3"
-                            onClick={() => updateStatus(lead.id, t.value)}
-                          >
-                            <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center">
-                              {t.icon}
+                         {STATUS_TRANSITIONS.map((t) => (
+                           <DropdownMenuItem
+                             key={t.value}
+                             className="rounded-xl px-4 py-3 font-bold text-sm flex gap-3"
+                             onClick={() => updateStatus(lead.id, t.value)}
+                           >
+                             <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center">
+                               {t.icon}
+                             </div>
+                             {t.label}
+                           </DropdownMenuItem>
+                         ))}
+                         <DropdownMenuSeparator className="bg-gray-100 my-1" />
+                         <DropdownMenuItem
+                           onClick={() => handleDelete(lead.id, lead.customer_name)}
+                           className="rounded-xl px-4 py-3 font-bold text-sm flex gap-3 text-red-500"
+                         >
+                            <div className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center">
+                               <Trash2 className="w-4 h-4" />
                             </div>
-                            {t.label}
-                          </DropdownMenuItem>
-                        ))}
-                      </DropdownMenuContent>
+                            Excluir Lead
+                         </DropdownMenuItem>
+                       </DropdownMenuContent>
                     </DropdownMenu>
                  </div>
               </div>
