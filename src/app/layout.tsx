@@ -1,11 +1,16 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans } from "next/font/google";
+import { Plus_Jakarta_Sans, Outfit } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 
 const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
   variable: "--font-jakarta",
+});
+
+const outfit = Outfit({
+  subsets: ["latin"],
+  variable: "--font-outfit",
 });
 
 export const metadata: Metadata = {
@@ -24,7 +29,7 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <body
-        className={`${jakarta.variable} antialiased bg-white text-black`}
+        className={`${jakarta.variable} ${outfit.variable} antialiased bg-white text-black`}
       >
         <Providers>
           <TooltipProvider>{children}</TooltipProvider>

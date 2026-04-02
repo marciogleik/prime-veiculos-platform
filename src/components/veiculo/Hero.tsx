@@ -59,19 +59,19 @@ export default function Hero({ brands }: HeroProps) {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="text-5xl sm:text-6xl md:text-8xl font-display font-black leading-[0.95] mb-8 tracking-tighter uppercase"
+            className="text-5xl sm:text-6xl md:text-8xl font-display font-black leading-[0.95] mb-8 tracking-tighter"
           >
             Seu próximo carro <br />
-            está na <span className="text-primary italic">Prime Veículos</span>
+            está na <span className="bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent italic drop-shadow-sm">Prime Veículos</span>
           </motion.h1>
 
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 }}
-            className="text-lg md:text-xl text-gray-400 mb-12 max-w-lg leading-relaxed"
+            className="text-lg md:text-xl text-gray-400 mb-12 max-w-lg leading-relaxed font-medium tracking-tight"
           >
-            Seminovos selecionados, procedência garantida e as melhores condições pra você sair de carro novo com segurança e tranquilidade. Av. Araguaia, 380 - Centro, Água Boa - MT, 78635-000
+            Seminovos selecionados, procedência garantida e as melhores condições para você conquistar seu novo carro com total segurança.
           </motion.p>
 
           <motion.div 
