@@ -43,6 +43,8 @@ export interface Vehicle {
   seller_id: string
   seller?: Seller
   slug: string
+  plate?: string
+  renavam?: string
   photos?: VehiclePhoto[]
   created_at: string
   updated_at: string

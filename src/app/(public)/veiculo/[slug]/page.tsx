@@ -14,9 +14,11 @@ import {
   Type, 
   CheckCircle2, 
   Share2,
-  Phone
+  Phone,
+  Edit2
 } from "lucide-react";
 import { Metadata } from "next";
+import Link from "next/link";
 
 interface VeiculoPageProps {
   params: Promise<{ slug: string }>;
@@ -28,17 +30,17 @@ export async function generateMetadata({ params }: VeiculoPageProps): Promise<Me
   
   const { data: v } = await supabase
     .from("vehicles")
-    .select("model, price, brands(name), vehicle_photos(url)")
+    .select("model, price, brand:brands(name), photos:vehicle_photos(url)")
     .eq("slug", slug)
     .single();
 
   if (!v) return { title: "Veículo não encontrado" };
 
   return {
-    title: `${v.brands?.[0]?.name} ${v.model} | Prime Veículos`,
-    description: `Confira os detalhes deste incrível ${v.brands?.[0]?.name} ${v.model} na Prime Veículos.`,
+    title: `${(v.brand as any)?.name} ${v.model} | Prime Veículos`,
+    description: `Confira os detalhes deste incrível ${(v.brand as any)?.name} ${v.model} na Prime Veículos.`,
     openGraph: {
-      images: [v.vehicle_photos?.[0]?.url || ""],
+      images: [(v.photos as any)?.[0]?.url || ""],
     },
   };
 }
@@ -55,6 +57,10 @@ export default async function VeiculoPage({ params }: VeiculoPageProps) {
     .eq("slug", slug)
     .single();
 
+  const { data: { user } } = await supabase.auth.getUser();
+  const { data: seller } = user ? await supabase.from("sellers").select("is_admin").eq("id", user.id).single() : { data: null };
+  const isAdmin = seller?.is_admin || false;
+
   // Fall back to mock data if not found in DB
   const v = dbVehicle ?? getMockVehicleBySlug(slug);
 
@@ -66,7 +72,29 @@ export default async function VeiculoPage({ params }: VeiculoPageProps) {
   }).format(v.price);
 
   return (
-    <div className="pt-32 pb-20 container mx-auto px-4">
+    <div className="pt-32 pb-20 container mx-auto px-4 relative">
+      {isAdmin && v && (
+        <div className="fixed top-24 left-0 right-0 z-50 flex justify-center pointer-events-none px-4">
+          <div className="bg-slate-900 text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-4 pointer-events-auto border border-white/10 backdrop-blur-xl bg-slate-900/90 animate-antigravity shadow-primary/20">
+            <div className="flex flex-col">
+              <span className="text-[9px] font-black uppercase tracking-widest text-primary">
+                {v.id?.startsWith("mock-") ? "Demonstração Prime" : "Modo Admin"}
+              </span>
+              <span className="text-xs font-bold whitespace-nowrap">
+                {v.id?.startsWith("mock-") ? "Transforme este modelo em realidade" : "Gerenciar este veículo"}
+              </span>
+            </div>
+            <div className="h-8 w-px bg-white/10 mx-1" />
+            <Button asChild size="sm" className="bg-primary hover:bg-primary/90 font-black text-[10px] tracking-widest px-6 rounded-full group">
+              <Link href={`/dashboard/veiculos/${v.id}/editar`} className="flex items-center gap-2">
+                <Edit2 className="w-3 h-3 group-hover:rotate-12 transition-transform" />
+                {v.id?.startsWith("mock-") ? "SALVAR EM MEU ESTOQUE" : "EDITAR AGORA"}
+              </Link>
+            </Button>
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
         {/* Left Col: Media & Description */}
         <div className="lg:col-span-8 space-y-8">

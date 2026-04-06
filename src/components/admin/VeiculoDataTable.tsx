@@ -27,12 +27,13 @@ import {
   ExternalLink, 
   Search,
   Plus,
-  Loader2
+  Loader2,
+  Copy
 } from "lucide-react";
 import { Vehicle } from "@/types";
 import Link from "next/link";
 import Image from "next/image";
-import { deleteVehicle } from "@/app/(admin)/dashboard/veiculos/actions";
+import { deleteVehicle, duplicateVehicle } from "@/lib/actions/vehicles";
 import { toast } from "sonner";
 
 interface VeiculoDataTableProps {
@@ -43,11 +44,30 @@ export default function VeiculoDataTable({ initialData }: VeiculoDataTableProps)
   const [data, setData] = useState(initialData);
   const [search, setSearch] = useState("");
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
+  const [isDuplicating, setIsDuplicating] = useState<string | null>(null);
 
   const filteredData = data.filter(v => 
     v.model.toLowerCase().includes(search.toLowerCase()) ||
     v.brand?.name.toLowerCase().includes(search.toLowerCase())
   );
+
+  const handleDuplicate = async (id: string, model: string) => {
+    setIsDuplicating(id);
+    try {
+      const result = await duplicateVehicle(id);
+      if (result.success) {
+        toast.success(`Veículo ${model} duplicado com sucesso!`);
+        // We could refetch or just add locally. For safety in a complex app, we often refetch, 
+        // but let's assume we want to see it immediately.
+        window.location.reload(); 
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Erro ao duplicar veículo.");
+    } finally {
+      setIsDuplicating(null);
+    }
+  };
 
   const handleDelete = async (id: string, model: string) => {
     if (!confirm(`Tem certeza que deseja excluir o veículo ${model}? Esta ação não pode ser desfeita.`)) {
@@ -139,21 +159,14 @@ export default function VeiculoDataTable({ initialData }: VeiculoDataTableProps)
                 </TableCell>
                 <TableCell className="px-8 py-5 text-right">
                   <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="rounded-xl w-10 h-10 bg-white border border-gray-100 shadow-sm hover:bg-slate-50 hover:border-primary/30 hover:shadow-md hover:scale-105 transition-all duration-300" 
-                        disabled={isDeleting === v.id}
-                      >
-                        {isDeleting === v.id ? (
+                    <DropdownMenuTrigger className="rounded-xl w-10 h-10 border border-gray-100 shadow-sm hover:bg-slate-50 hover:border-primary/30 hover:shadow-md hover:scale-105 transition-all duration-300 flex items-center justify-center bg-white" disabled={isDeleting === v.id || isDuplicating === v.id}>
+                        {isDeleting === v.id || isDuplicating === v.id ? (
                           <Loader2 className="w-5 h-5 text-primary animate-spin" />
                         ) : (
                           <MoreHorizontal className="w-5 h-5 text-slate-400" />
                         )}
-                      </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-56 rounded-[1.5rem] p-2 shadow-2xl border-gray-100">
+                    <DropdownMenuContent align="end" className="w-64 rounded-[2rem] p-3 shadow-2xl border-gray-100 bg-white z-[100] isolate">
                       <DropdownMenuLabel className="px-4 py-2 text-[10px] font-black uppercase text-gray-400 tracking-[0.2em] mb-1">Opções do Veículo</DropdownMenuLabel>
                       <DropdownMenuSeparator className="bg-gray-50 mb-1" />
                       <DropdownMenuItem asChild className="rounded-xl px-4 py-3 cursor-pointer transition-all hover:bg-primary/5 hover:text-primary">
@@ -163,6 +176,16 @@ export default function VeiculoDataTable({ initialData }: VeiculoDataTableProps)
                           </div>
                           Editar Dados
                         </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        onClick={() => handleDuplicate(v.id, v.model)}
+                        className="rounded-xl px-4 py-3 cursor-pointer transition-all hover:bg-primary/5 hover:text-primary font-bold text-sm"
+                        disabled={isDuplicating === v.id}
+                      >
+                         <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600 mr-3">
+                            {isDuplicating === v.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Copy className="w-4 h-4" />}
+                         </div>
+                         Duplicar Veículo
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild className="rounded-xl px-4 py-3 cursor-pointer transition-all hover:bg-primary/5 hover:text-primary">
                         <Link href={`/veiculo/${v.slug}`} target="_blank" className="flex items-center gap-3 font-bold text-sm">
@@ -231,6 +254,15 @@ export default function VeiculoDataTable({ initialData }: VeiculoDataTableProps)
                       <Edit className="w-5 h-5 text-gray-400" />
                     </Link>
                  </Button>
+                 <Button 
+                    variant="secondary" 
+                    size="icon" 
+                    className="rounded-xl h-12 w-12 bg-emerald-50 text-emerald-600 border border-emerald-100 hover:bg-emerald-600 hover:text-white"
+                    onClick={() => handleDuplicate(v.id, v.model)}
+                    disabled={isDuplicating === v.id}
+                  >
+                    {isDuplicating === v.id ? <Loader2 className="w-5 h-5 animate-spin" /> : <Copy className="w-5 h-5" />}
+                  </Button>
                  <Button asChild variant="secondary" size="icon" className="rounded-xl h-12 w-12 bg-slate-100 hover:bg-slate-200">
                     <Link href={`/veiculo/${v.slug}`} target="_blank">
                       <ExternalLink className="w-5 h-5 text-gray-600" />

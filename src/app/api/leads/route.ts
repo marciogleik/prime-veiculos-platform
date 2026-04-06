@@ -5,7 +5,7 @@ import { z } from "zod";
 const leadSchema = z.object({
   name: z.string().min(3),
   whatsapp: z.string().min(10),
-  vehicle_id: z.string().uuid(),
+  vehicle_id: z.string(), // Allow mock IDs (non-UUID)
   message: z.string().optional(),
 });
 
@@ -15,15 +15,32 @@ export async function POST(request: Request) {
     const validatedData = leadSchema.parse(body);
     const supabase = await createClient();
 
-    // Fetch vehicle to get seller_id
-    const { data: vehicle, error: vError } = await supabase
-      .from("vehicles")
-      .select("seller_id")
-      .eq("id", validatedData.vehicle_id)
-      .single();
+    let sellerId: string | null = null;
+    let finalVehicleId: string | null = null;
 
-    if (vError || !vehicle) {
-      return NextResponse.json({ error: "Veículo não encontrado" }, { status: 404 });
+    const isMock = validatedData.vehicle_id.startsWith("mock-");
+
+    if (isMock) {
+      // For mock vehicles, try to assign to the first available seller or leave null
+      const { data: firstSeller } = await supabase.from("sellers").select("id").limit(1).maybeSingle();
+      sellerId = firstSeller?.id || null;
+      finalVehicleId = null; // Cannot link mock ID to vehicles table FK
+    } else {
+      // Real vehicle: fetch seller_id
+      const { data: vehicle, error: vError } = await supabase
+        .from("vehicles")
+        .select("seller_id")
+        .eq("id", validatedData.vehicle_id)
+        .single();
+      
+      if (vError || !vehicle) {
+        // Fallback: maybe it was recently deleted or it's a desync
+        const { data: firstSeller } = await supabase.from("sellers").select("id").limit(1).maybeSingle();
+        sellerId = firstSeller?.id || null;
+      } else {
+        sellerId = vehicle.seller_id;
+        finalVehicleId = validatedData.vehicle_id;
+      }
     }
 
     // Insert lead
@@ -32,15 +49,15 @@ export async function POST(request: Request) {
       .insert({
         customer_name: validatedData.name,
         customer_whatsapp: validatedData.whatsapp,
-        vehicle_id: validatedData.vehicle_id,
-        seller_id: vehicle.seller_id,
-        notes: validatedData.message,
+        vehicle_id: finalVehicleId, // Will be null for mocks
+        seller_id: sellerId,
+        notes: validatedData.message + (isMock ? `\n(Interesse no veículo mock: ${validatedData.vehicle_id})` : ""),
         status: "novo",
       });
 
     if (lError) {
-      console.error("Supabase Error:", lError);
-      return NextResponse.json({ error: "Erro ao salvar lead" }, { status: 500 });
+      console.error("Supabase Error saving lead:", lError);
+      return NextResponse.json({ error: "Erro ao salvar lead no banco de dados" }, { status: 500 });
     }
 
     return NextResponse.json({ success: true });
@@ -48,6 +65,7 @@ export async function POST(request: Request) {
     if (error instanceof z.ZodError) {
       return NextResponse.json({ error: error.issues }, { status: 400 });
     }
+    console.error("Unhandled Error in /api/leads:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

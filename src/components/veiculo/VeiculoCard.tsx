@@ -23,19 +23,19 @@ export default function VeiculoCard({ veiculo }: VeiculoCardProps) {
       className="group block bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-500 ease-out"
     >
       {/* Image */}
-      <div className="relative aspect-[16/10] overflow-hidden bg-slate-100">
+    <div className="relative aspect-[16/10] overflow-hidden bg-slate-900">
         <Image
           src={capa}
           alt={`${veiculo.brand?.name} ${veiculo.model}`}
           fill
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-          className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+          className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out z-0"
         />
         {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-900/40 to-transparent z-10" />
 
         {/* Top badges */}
-        <div className="absolute top-3 left-3 flex gap-2">
+        <div className="absolute top-3 left-3 flex gap-2 z-20">
           {veiculo.is_featured && (
             <Badge className="bg-primary text-white text-[9px] font-black tracking-widest px-2.5 py-1 rounded-full border-0 backdrop-blur-sm">
               DESTAQUE
@@ -49,11 +49,11 @@ export default function VeiculoCard({ veiculo }: VeiculoCardProps) {
         </div>
 
         {/* Bottom info overlay */}
-        <div className="absolute bottom-0 left-0 right-0 p-4">
-          <p className="text-[9px] font-black text-white/60 uppercase tracking-[0.25em] mb-0.5">
+        <div className="absolute bottom-0 left-0 right-0 p-4 z-20">
+          <p className="text-[9px] font-black text-white/80 uppercase tracking-[0.25em] mb-0.5 drop-shadow-md">
             {veiculo.brand?.name}
           </p>
-          <h2 className="text-xl font-display font-black text-white leading-tight tracking-tighter">
+          <h2 className="text-xl font-display font-black text-white leading-tight tracking-tighter drop-shadow-lg">
             {veiculo.model}
           </h2>
         </div>

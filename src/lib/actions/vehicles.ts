@@ -2,7 +2,6 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 import { z } from "zod";
 
 const vehicleSchema = z.object({
@@ -37,15 +36,14 @@ export async function saveVehicle(formData: any, vehicleId?: string) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  if (!user) throw new Error("Não autorizado");
+  if (!user) throw new Error("Não autorizado. Faça login novamente.");
 
+  // Basic validation
   const validated = vehicleSchema.parse(formData);
   
-  // Resolve or create brand
   let finalBrandId = validated.brand_id;
   let brandName = "Carro";
   
-  // Check if brand_id is actually a UUID. If not, try to find or create the brand by name.
   const isUuid = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(finalBrandId);
   
   if (isUuid) {
@@ -54,37 +52,70 @@ export async function saveVehicle(formData: any, vehicleId?: string) {
       brandName = b.name;
     }
   } else {
-    // Try to find by name, case-insensitive, or create
-    const { data: existingBrand } = await supabase.from("brands").select("id, name").ilike("name", finalBrandId).maybeSingle();
-    if (existingBrand) {
-      finalBrandId = existingBrand.id;
-      brandName = existingBrand.name;
+    // Try to find by name, very fuzzy
+    const { data: allBrands } = await supabase.from("brands").select("id, name");
+    
+    // Normalize string for better matching
+    const searchName = finalBrandId.toLowerCase().trim();
+    
+    const matchedBrand = allBrands?.find(b => {
+      const dbName = b.name.toLowerCase();
+      return searchName.includes(dbName) || dbName.includes(searchName) || 
+             searchName.split(/[\s-]/)[0] === dbName.split(/[\s-]/)[0];
+    });
+
+    if (matchedBrand) {
+      finalBrandId = matchedBrand.id;
+      brandName = matchedBrand.name;
     } else {
-       // Insert new brand
+       // Try to insert new brand (might fail due to RLS, but we try)
        const { data: newBrand, error: brandErr } = await supabase.from("brands").insert({
           id: crypto.randomUUID(),
-          name: finalBrandId,
-          slug: finalBrandId.toLowerCase().replace(/\s+/g, '-'),
+          name: finalBrandId.trim(),
        }).select("id, name").single();
        
-       if (!brandErr && newBrand) {
+       if (brandErr) {
+          console.error("Erro ao criar marca:", brandErr);
+          // If we can't create or find, we MUST fail with instructions
+          throw new Error(`A marca '${finalBrandId}' não foi encontrada no sistema e não pôde ser criada automaticamente. Certifique-se de rodar o script SQL de permissões ou selecione uma marca existente.`);
+       }
+       
+       if (newBrand) {
           finalBrandId = newBrand.id;
           brandName = newBrand.name;
        }
     }
   }
   
-  const idValue = vehicleId || crypto.randomUUID();
+  // Ensure we have a valid UUID for the vehicle
+  const idValue = (vehicleId && /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}/.test(vehicleId)) 
+    ? vehicleId 
+    : crypto.randomUUID();
+    
   const slug = generateSlug(brandName, validated.model, validated.year_model, idValue);
 
+  // Construct final data strictly
   const vehicleData = {
-    ...validated,
-    brand_id: finalBrandId,
     id: idValue,
+    brand_id: finalBrandId,
+    model: validated.model,
+    year_fab: validated.year_fab,
+    year_model: validated.year_model,
+    version: validated.version || null,
+    price: validated.price,
+    mileage: validated.mileage,
+    color: validated.color || null,
+    transmission: validated.transmission,
+    fuel: validated.fuel,
+    description: validated.description || null,
+    optionals: validated.optionals || [],
+    status: validated.status,
+    is_featured: validated.is_featured,
+    accepts_proposal: validated.accepts_proposal,
+    plate: validated.plate || null,
+    renavam: validated.renavam || null,
     slug,
-    plate: validated.plate,
-    renavam: validated.renavam,
-    seller_id: user.id,
+    seller_id: user.id, 
     updated_at: new Date().toISOString(),
   };
 
@@ -92,7 +123,14 @@ export async function saveVehicle(formData: any, vehicleId?: string) {
     .from("vehicles")
     .upsert(vehicleData);
 
-  if (error) throw error;
+  if (error) {
+    console.error("Erro no upsert do veículo:", error);
+    // If it's a seller_id problem, maybe provide help
+    if (error.code === '23503' && error.message.includes('seller_id')) {
+        throw new Error("Seu usuário não está registrado como vendedor no sistema. Entre em contato com o administrador.");
+    }
+    throw error;
+  }
 
   revalidatePath("/catalogo");
   revalidatePath(`/veiculo/${slug}`);
@@ -114,10 +152,7 @@ export async function deleteVehicle(id: string) {
 export async function deletePhoto(photoId: string, storagePath: string) {
   const supabase = await createClient();
   
-  // Remove from DB
   await supabase.from("vehicle_photos").delete().eq("id", photoId);
-  
-  // Remove from Storage
   await supabase.storage.from("vehicle-photos").remove([storagePath]);
 }
 
@@ -126,52 +161,38 @@ export async function duplicateVehicle(id: string) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Não autorizado");
 
-  const isMock = id.startsWith("mock-");
-  let originalVehicle: any = null;
+  const { data: v, error: vErr } = await supabase
+    .from("vehicles")
+    .select("*, brand:brands(name), photos:vehicle_photos(*)")
+    .eq("id", id)
+    .single();
+  if (vErr || !v) throw new Error("Veículo não encontrado");
 
-  if (isMock) {
-    const { MOCK_VEHICLES } = await import("@/lib/mock-vehicles");
-    originalVehicle = MOCK_VEHICLES.find(v => v.id === id);
-    if (!originalVehicle) throw new Error("Veículo demonstração não encontrado");
-  } else {
-    // 1. Get original vehicle from DB
-    const { data: v, error: vErr } = await supabase
-      .from("vehicles")
-      .select("*, brand:brands(name), photos:vehicle_photos(*)")
-      .eq("id", id)
-      .single();
-    if (vErr || !v) throw new Error("Veículo não encontrado");
-    originalVehicle = v;
-  }
-
-  // 2. Prepare new data
   const newId = crypto.randomUUID();
-  const brandName = isMock ? originalVehicle.brand.name : originalVehicle.brand.name;
-  const newSlug = generateSlug(brandName, originalVehicle.model, originalVehicle.year_model, newId);
+  const brandName = v.brand?.name || "Veículo";
+  const newSlug = generateSlug(brandName, v.model, v.year_model, newId);
 
-  const { photos, brand, created_at, updated_at, ...rest } = originalVehicle;
+  const { photos, brand, created_at, updated_at, ...rest } = v;
   
   const duplicatedData = {
     ...rest,
     id: newId,
     slug: newSlug,
-    plate: null, // Reset plate for safety
+    plate: null,
     seller_id: user.id,
     status: 'disponível',
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   };
 
-  // 3. Insert duplicated vehicle
   const { error: insErr } = await supabase.from("vehicles").insert(duplicatedData);
   if (insErr) throw insErr;
 
-  // 4. Duplicate photo records (reusing same storage files)
   if (photos && photos.length > 0) {
     const newPhotos = photos.map((p: any) => ({
       vehicle_id: newId,
       url: p.url,
-      storage_path: p.storage_path || "", // Handle empty storage path for mock photos
+      storage_path: p.storage_path || "",
       order_index: p.order_index
     }));
     await supabase.from("vehicle_photos").insert(newPhotos);

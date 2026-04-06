@@ -21,7 +21,7 @@ import { useState } from "react";
 import FotoUpload from "./FotoUpload";
 import { Loader2, Save, Car, Settings } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { saveVehicle } from "@/app/(admin)/dashboard/veiculos/actions";
+import { saveVehicle } from "@/lib/actions/vehicles";
 import { createClient } from "@/lib/supabase/client";
 
 const vehicleSchema = z.object({
@@ -40,6 +40,8 @@ const vehicleSchema = z.object({
   status: z.enum(["disponível", "reservado", "vendido"]),
   is_featured: z.boolean().default(false),
   accepts_proposal: z.boolean().default(false),
+  plate: z.string().max(8, "Placa inválida").optional().nullable(),
+  renavam: z.string().max(11, "Renavam inválido").optional().nullable(),
 });
 
 type VehicleFormValues = z.infer<typeof vehicleSchema>;
@@ -49,6 +51,13 @@ const BRAND_SUGGESTIONS = [
   "Ferrari", "McLaren", "Bentley", "Rolls-Royce", "Maserati", "Jaguar",
   "Land Rover", "Lexus", "Toyota", "Honda", "Volkswagen", "Chevrolet",
   "Ford", "Hyundai", "Kia", "Volvo", "Alfa Romeo",
+];
+
+const PREMIUM_OPTIONALS = [
+  "Banco em Couro", "Teto Solar", "Rodas Aro 20+", "Sistema de Som Premium", 
+  "Faróis Full LED", "Câmera 360", "Park Assist", "Controle de Cruzeiro Adaptativo", 
+  "Assistente de Faixa", "Head-up Display", "Pacote Esportivo", "Volante Multifuncional", 
+  "Conexão Bluetooth", "Apple CarPlay", "Android Auto"
 ];
 
 export default function VeiculoForm({
@@ -71,20 +80,48 @@ export default function VeiculoForm({
       storage_path: p.storage_path,
     })) || []
   );
+  const [isGeneratingAi, setIsGeneratingAi] = useState(false);
+  const [displayPrice, setDisplayPrice] = useState(initialData?.price ? (initialData.price / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : "");
+  const [displayKm, setDisplayKm] = useState(initialData?.mileage ? initialData.mileage.toLocaleString('pt-BR') : "");
 
   const filteredSuggestions = BRAND_SUGGESTIONS.filter(
     (b) => b.toLowerCase().includes(brandInput.toLowerCase()) && brandInput.length > 0
   );
+
+  // Resolve brand_id: mock vehicles use names like "porsche" instead of UUIDs
+  const resolvedBrandId = (() => {
+    const bid = initialData?.brand_id;
+    if (!bid) return "";
+    // If it's already a UUID, use as is
+    if (/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}/.test(bid)) return bid;
+    
+    // Fuzzy search: try exact match first
+    let match = brands.find(b => b.name.toLowerCase() === bid.toLowerCase());
+    
+    // If no exact match, try if DB brand is contained in mock brand string (e.g. "Mercedes" in "Mercedes-AMG")
+    if (!match) {
+      match = brands.find(b => bid.toLowerCase().includes(b.name.toLowerCase()));
+    }
+    
+    // Or if mock brand is contained in DB brand (e.g. "Porsche" in "Porsche Cars")
+    if (!match) {
+      match = brands.find(b => b.name.toLowerCase().includes(bid.toLowerCase()));
+    }
+    
+    return match?.id || bid; // Return found UUID or keep original string (server will handle string-to-uuid)
+  })();
 
   const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm({
     resolver: zodResolver(vehicleSchema),
     defaultValues: initialData
       ? {
           ...initialData,
-          brand_id: initialData.brand_id,
+          brand_id: resolvedBrandId,
           status: initialData.status as any,
           transmission: initialData.transmission as any,
           fuel: initialData.fuel as any,
+          plate: initialData.plate || "",
+          renavam: initialData.renavam || "",
         }
       : {
           status: "disponível",
@@ -101,7 +138,9 @@ export default function VeiculoForm({
   const onSubmit = async (data: VehicleFormValues) => {
     setLoading(true);
     try {
-      const result = await saveVehicle(data, initialData?.id);
+      // If it's a mock vehicle, we treat it as a NEW creation (don't pass initialData.id)
+      const saveId = initialData?.id?.startsWith("mock-") ? undefined : initialData?.id;
+      const result = await saveVehicle(data, saveId);
 
       if (result.success) {
         // 1. Delete removed photos from Supabase
@@ -185,10 +224,14 @@ export default function VeiculoForm({
                   <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Marca</Label>
                   {brands.length > 0 ? (
                     <Select
-                      defaultValue={watch("brand_id") ?? undefined}
-                      onValueChange={(val) => setValue("brand_id", val as string)}
+                      value={watch("brand_id") ?? undefined}
+                      onValueChange={(val) => {
+                        setValue("brand_id", val as string);
+                        const sel = brands.find(b => b.id === val);
+                        if (sel) setBrandInput(sel.name);
+                      }}
                     >
-                      <SelectTrigger className="h-12 sm:h-14 rounded-2xl border-gray-100 bg-gray-50/50 focus:ring-primary/20 transition-all font-bold">
+                      <SelectTrigger className="h-12 sm:h-14 rounded-2xl border-gray-100 bg-gray-50/50 focus:ring-primary/20 transition-all font-bold text-gray-900">
                         <SelectValue placeholder="Selecione a marca..." />
                       </SelectTrigger>
                       <SelectContent className="rounded-2xl shadow-2xl border-gray-100">
@@ -208,9 +251,9 @@ export default function VeiculoForm({
                           setValue("brand_id", e.target.value);
                           setShowSuggestions(true);
                         }}
-                        onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+                        onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                         placeholder="Ex: Porsche, BMW..."
-                        className="h-12 sm:h-14 rounded-2xl border-gray-100 bg-gray-50/50 focus:ring-primary/20 transition-all font-bold"
+                        className="h-12 sm:h-14 rounded-2xl border-gray-100 bg-gray-50/50 focus:ring-primary/20 transition-all font-bold text-gray-900"
                       />
                       {showSuggestions && filteredSuggestions.length > 0 && (
                         <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-2xl z-50 max-h-60 overflow-y-auto p-2">
@@ -304,15 +347,34 @@ export default function VeiculoForm({
                 <div className="space-y-2 lg:col-span-1">
                   <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Preço (R$)</Label>
                   <Input 
-                    {...register("price")} 
-                    type="number" 
+                    value={displayPrice}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/\D/g, "");
+                      const num = Number(value) / 100;
+                      setDisplayPrice(num.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }));
+                      setValue("price", num);
+                    }}
+                    type="text" 
+                    placeholder="R$ 0,00"
                     className="h-12 sm:h-14 rounded-2xl border-gray-100 bg-primary/5 text-primary font-black text-lg focus:ring-primary/20 transition-all" 
                   />
                   {errors.price && <p className="text-[9px] text-red-500 font-bold ml-1">{errors.price.message}</p>}
                 </div>
                 <div className="space-y-2">
                   <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Quilometragem</Label>
-                  <Input {...register("mileage")} type="number" className="h-12 sm:h-14 rounded-2xl border-gray-100 bg-gray-50/50 font-bold" />
+                  <Input 
+                    value={displayKm}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/\D/g, "");
+                      const num = Number(value);
+                      setDisplayKm(num.toLocaleString('pt-BR'));
+                      setValue("mileage", num);
+                    }}
+                    type="text" 
+                    placeholder="0 km"
+                    className="h-12 sm:h-14 rounded-2xl border-gray-100 bg-gray-50/50 font-bold" 
+                  />
+                  {errors.mileage && <p className="text-[9px] text-red-500 font-bold ml-1">{errors.mileage.message}</p>}
                 </div>
                 <div className="space-y-2">
                   <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Cor</Label>
@@ -353,9 +415,63 @@ export default function VeiculoForm({
                 </div>
               </div>
 
+              {/* Opcionais */}
+              <div className="space-y-3 pt-6 border-t border-gray-100">
+                <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Opcionais (Tags Mágicas)</Label>
+                <div className="flex flex-wrap gap-2">
+                  {PREMIUM_OPTIONALS.map(opt => {
+                    const currentOptionals = watch("optionals") || [];
+                    const isSelected = currentOptionals.includes(opt);
+                    return (
+                      <button
+                        key={opt}
+                        type="button"
+                        onClick={() => {
+                          const newOptionals = isSelected 
+                            ? currentOptionals.filter(o => o !== opt)
+                            : [...currentOptionals, opt];
+                          setValue("optionals", newOptionals);
+                        }}
+                        className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
+                          isSelected 
+                            ? "bg-slate-900 text-white border-slate-900 shadow-md transform scale-105" 
+                            : "bg-white text-slate-600 border-slate-200 hover:border-slate-300"
+                        }`}
+                      >
+                        {opt}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
               {/* Descrição */}
-              <div className="space-y-2 pt-2">
-                <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Descrição Detalhada</Label>
+              <div className="space-y-4 pt-6 border-t border-gray-100">
+                <div className="flex items-center justify-between">
+                  <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Descrição Detalhada</Label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setIsGeneratingAi(true);
+                      const brand = brandInput || "Veículo Exclusivo";
+                      const model = watch("model") || "";
+                      const version = watch("version") || "";
+                      const year = watch("year_model") || "";
+                      const km = watch("mileage") ? `${watch("mileage")} km` : "0 km";
+                      const optionals = watch("optionals")?.join(", ") || "";
+                      setTimeout(() => {
+                        setValue("description", `Uma obra prima sobre rodas. Este incrível ${brand} ${model} ${version} ${year} alia performance, requinte e sofisticação inigualável.\n\nCom apenas ${km}, o veículo encontra-se em estado impecável, configurado com maestria.\n\nDestaques desta unidade:\n${optionals ? optionals.split(", ").map(opt => `• ${opt}`).join("\n") : "• Configuração Exclusiva"}\n\nDisponível no showroom da Prime Veículos para você viver a verdadeira Premium Experience.`);
+                        setIsGeneratingAi(false);
+                      }, 1000);
+                    }}
+                    disabled={isGeneratingAi}
+                    className="h-8 bg-amber-50 text-amber-600 border-amber-200 hover:bg-amber-100 rounded-lg text-[10px] font-black uppercase tracking-widest"
+                  >
+                    {isGeneratingAi ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : "🪄 Gerar Texto Mágico"}
+                  </Button>
+                </div>
                 <Textarea
                   {...register("description")}
                   placeholder="Descreva os diferenciais, opcionais e história do veículo..."
@@ -417,6 +533,28 @@ export default function VeiculoForm({
                     <SelectItem value="vendido" className="rounded-xl py-3 font-black text-sm focus:bg-primary/20">✔️ Vendido</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+
+              <div className="space-y-4 pt-4 border-t border-white/5">
+                <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Controle Interno (Privado)</Label>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <Label className="text-[9px] font-bold uppercase text-gray-500 ml-1">Placa</Label>
+                    <Input 
+                      {...register("plate")} 
+                      placeholder="ABC-1D23"
+                      className="h-11 rounded-xl bg-white/5 border-white/10 text-white font-bold uppercase placeholder:text-white/20"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-[9px] font-bold uppercase text-gray-500 ml-1">Renavam</Label>
+                    <Input 
+                      {...register("renavam")} 
+                      placeholder="000...000"
+                      className="h-11 rounded-xl bg-white/5 border-white/10 text-white font-bold placeholder:text-white/20"
+                    />
+                  </div>
+                </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

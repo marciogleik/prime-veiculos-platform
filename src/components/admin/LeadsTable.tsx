@@ -30,29 +30,52 @@ import {
   RefreshCw,
   Loader2,
   Trash2,
+  Edit2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
-import { deleteLead } from "@/app/(admin)/dashboard/leads/actions";
+import { deleteLead, updateLead } from "@/lib/actions/leads";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type Lead = {
   id: string;
-  customer_name: string;
-  customer_whatsapp: string;
-  notes?: string;
-  status: string;
+  customer_name: string | null;
+  customer_whatsapp: string | null;
+  notes?: string | null;
+  status: string | null;
   created_at: string;
   vehicle?: { brand?: { name: string }; model: string } | null;
-  seller?: { name: string } | null;
+  seller?: { id?: string; name: string } | null;
+  seller_id?: string | null;
+};
+
+type Seller = {
+  id: string;
+  name: string;
 };
 
 const STATUS_CONFIG: Record<string, { label: string; className: string; icon: React.ReactNode }> = {
-  novo:       { label: "NOVO",       className: "bg-primary",      icon: <Clock className="w-3 h-3" /> },
-  contatado:  { label: "CONTATADO", className: "bg-blue-500",     icon: <MessageCircle className="w-3 h-3" /> },
-  negociando: { label: "NEGOCIANDO",className: "bg-orange-500",   icon: <RefreshCw className="w-3 h-3" /> },
-  convertido: { label: "CONVERTIDO",className: "bg-emerald-500",  icon: <CheckCircle className="w-3 h-3" /> },
-  perdido:    { label: "PERDIDO",   className: "bg-gray-400",     icon: <XCircle className="w-3 h-3" /> },
+  novo:       { label: "NOVO",       className: "bg-primary text-white",      icon: <Clock className="w-3 h-3" /> },
+  contatado:  { label: "CONTATADO", className: "bg-blue-500 text-white",     icon: <MessageCircle className="w-3 h-3" /> },
+  negociando: { label: "NEGOCIANDO",className: "bg-orange-500 text-white",   icon: <RefreshCw className="w-3 h-3" /> },
+  convertido: { label: "CONVERTIDO",className: "bg-emerald-500 text-white",  icon: <CheckCircle className="w-3 h-3" /> },
+  perdido:    { label: "PERDIDO",   className: "bg-gray-400 text-white",     icon: <XCircle className="w-3 h-3" /> },
 };
 
 const STATUS_TRANSITIONS = [
@@ -63,47 +86,82 @@ const STATUS_TRANSITIONS = [
 ];
 
 function timeAgo(iso: string) {
-  const diff = Date.now() - new Date(iso).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 60) return `${mins}min`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs}h`;
-  return `${Math.floor(hrs / 24)}d`;
+  try {
+    const diff = Date.now() - new Date(iso).getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 60) return `${mins}min`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `${hrs}h`;
+    return `${Math.floor(hrs / 24)}d`;
+  } catch (e) {
+    return "---";
+  }
 }
 
-export default function LeadsTable({ initialLeads }: { initialLeads: Lead[] }) {
+export default function LeadsTable({ initialLeads, sellers }: { initialLeads: Lead[], sellers: Seller[] }) {
   const [leads, setLeads] = useState(initialLeads);
+  const [editingLead, setEditingLead] = useState<Lead | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [isPending, startTransition] = useTransition();
-  const supabase = createClient();
 
-  const filtered = leads.filter((l) => {
+  const filtered = (leads || []).filter((l) => {
+    const customerName = l.customer_name || "";
+    const vehicleBrand = l.vehicle?.brand?.name || "";
+    const vehicleModel = l.vehicle?.model || "";
+    const status = l.status || "novo";
+
     const matchSearch =
       search === "" ||
-      l.customer_name.toLowerCase().includes(search.toLowerCase()) ||
-      `${l.vehicle?.brand?.name} ${l.vehicle?.model}`.toLowerCase().includes(search.toLowerCase());
-    const matchStatus = filterStatus === "all" || l.status === filterStatus;
+      customerName.toLowerCase().includes(search.toLowerCase()) ||
+      `${vehicleBrand} ${vehicleModel}`.toLowerCase().includes(search.toLowerCase());
+    const matchStatus = filterStatus === "all" || status === filterStatus;
     return matchSearch && matchStatus;
   });
 
   const updateStatus = async (leadId: string, newStatus: string) => {
     startTransition(async () => {
-      const { error } = await supabase
-        .from("leads")
-        .update({ status: newStatus })
-        .eq("id", leadId);
-
-      if (error) {
+      try {
+        await updateLead(leadId, { status: newStatus });
+        setLeads((prev) =>
+          prev.map((l) => (l.id === leadId ? { ...l, status: newStatus } : l))
+        );
+        toast.success("Status atualizado!");
+      } catch (e) {
         toast.error("Erro ao atualizar status");
-        return;
       }
-
-      setLeads((prev) =>
-        prev.map((l) => (l.id === leadId ? { ...l, status: newStatus } : l))
-      );
-      toast.success("Status atualizado!");
     });
+  };
+
+  const handleSaveEdit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingLead) return;
+
+    setIsSaving(true);
+    try {
+      const { id, vehicle, seller: sellerData, created_at, ...updateData } = editingLead;
+      
+      const cleanData = {
+        ...updateData,
+        customer_name: updateData.customer_name || "",
+        customer_whatsapp: updateData.customer_whatsapp || "",
+        status: updateData.status || "novo",
+      };
+
+      await updateLead(id, cleanData);
+      
+      setLeads((prev) =>
+        prev.map((l) => (l.id === id ? { ...editingLead } : l))
+      );
+      
+      toast.success("Lead atualizado com sucesso!");
+      setEditingLead(null);
+    } catch (e) {
+      toast.error("Erro ao salvar alterações");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleDelete = async (id: string, name: string) => {
@@ -122,7 +180,6 @@ export default function LeadsTable({ initialLeads }: { initialLeads: Lead[] }) {
 
   return (
     <div className="space-y-4 sm:space-y-6">
-      {/* Search + filter bar */}
       <div className="flex flex-col lg:flex-row gap-4">
         <div className="relative flex-1 group">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-900 group-focus-within:text-primary transition-colors" />
@@ -134,7 +191,6 @@ export default function LeadsTable({ initialLeads }: { initialLeads: Lead[] }) {
           />
         </div>
         
-        {/* Horizontal scrollable status filters for mobile */}
         <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 lg:overflow-visible lg:pb-0 lg:mx-0 lg:px-0 no-scrollbar">
           {["all", "novo", "contatado", "negociando", "convertido", "perdido"].map((s) => (
             <button
@@ -153,7 +209,6 @@ export default function LeadsTable({ initialLeads }: { initialLeads: Lead[] }) {
         </div>
       </div>
 
-      {/* Stats strip — clickable as quick filters */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
         {Object.entries(STATUS_CONFIG).map(([key, cfg]) => {
           const count = leads.filter((l) => l.status === key).length;
@@ -176,7 +231,6 @@ export default function LeadsTable({ initialLeads }: { initialLeads: Lead[] }) {
         })}
       </div>
 
-      {/* Desktop Table View */}
       <div className="hidden md:block bg-white rounded-[2.5rem] border border-gray-100 overflow-hidden shadow-sm">
         <Table>
           <TableHeader>
@@ -201,7 +255,8 @@ export default function LeadsTable({ initialLeads }: { initialLeads: Lead[] }) {
               </TableRow>
             ) : (
               filtered.map((lead) => {
-                const s = STATUS_CONFIG[lead.status] ?? STATUS_CONFIG.novo;
+                const status = lead.status || "novo";
+                const s = STATUS_CONFIG[status] ?? STATUS_CONFIG.novo;
                 return (
                   <TableRow key={lead.id} className="border-gray-50/50 hover:bg-gray-50/30 transition-colors group">
                     <TableCell className="px-8 py-5">
@@ -233,7 +288,7 @@ export default function LeadsTable({ initialLeads }: { initialLeads: Lead[] }) {
                        </div>
                     </TableCell>
                     <TableCell className="py-5 text-center">
-                      <Badge className={cn("font-black text-[9px] rounded-full gap-1.5 px-3 py-1", s.className)}>
+                      <Badge className={cn("font-black text-[9px] rounded-full gap-1.5 px-3 py-1 border-0", s.className)}>
                         {s.icon}
                         {s.label}
                       </Badge>
@@ -249,7 +304,7 @@ export default function LeadsTable({ initialLeads }: { initialLeads: Lead[] }) {
                           className="rounded-xl h-10 w-10 bg-green-500 hover:bg-green-600 hover:scale-110 active:scale-95 transition-all shadow-lg shadow-green-500/20"
                           asChild
                         >
-                          <a href={`https://wa.me/55${lead.customer_whatsapp.replace(/\D/g, "")}`} target="_blank" title="Abrir WhatsApp">
+                          <a href={`https://wa.me/55${(lead.customer_whatsapp || "").replace(/\D/g, "")}`} target="_blank" title="Abrir WhatsApp">
                             <MessageCircle className="w-5 h-5 text-white" />
                           </a>
                         </Button>
@@ -269,6 +324,20 @@ export default function LeadsTable({ initialLeads }: { initialLeads: Lead[] }) {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="w-56 rounded-[1.5rem] p-2 shadow-2xl border-gray-100">
+                            <DropdownMenuLabel className="px-4 py-2 text-[10px] font-black uppercase text-gray-400 tracking-[0.2em] mb-1">
+                              Ações Rápidas
+                            </DropdownMenuLabel>
+                            <DropdownMenuSeparator className="bg-gray-50 mb-1" />
+                            <DropdownMenuItem
+                              className="rounded-xl px-4 py-3 cursor-pointer font-bold text-sm gap-3 transition-all focus:bg-primary/5 focus:text-primary"
+                              onClick={() => setEditingLead(lead)}
+                            >
+                              <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center">
+                                <Edit2 className="w-4 h-4" />
+                              </div>
+                              Editar Detalhes
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator className="bg-gray-50 my-1" />
                             <DropdownMenuLabel className="px-4 py-2 text-[10px] font-black uppercase text-gray-400 tracking-[0.2em] mb-1">
                               Alterar Status
                             </DropdownMenuLabel>
@@ -294,7 +363,7 @@ export default function LeadsTable({ initialLeads }: { initialLeads: Lead[] }) {
                             ))}
                             <DropdownMenuSeparator className="bg-gray-50 my-1" />
                             <DropdownMenuItem
-                              onClick={() => handleDelete(lead.id, lead.customer_name)}
+                              onClick={() => handleDelete(lead.id, lead.customer_name || "Cliente")}
                               className="rounded-xl px-4 py-3 cursor-pointer font-bold text-sm gap-3 text-red-500 focus:bg-red-50 focus:text-red-600"
                             >
                                <div className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center text-red-500">
@@ -314,97 +383,110 @@ export default function LeadsTable({ initialLeads }: { initialLeads: Lead[] }) {
         </Table>
       </div>
 
-      {/* Mobile Card List View */}
-      <div className="md:hidden space-y-4">
-        {filtered.map((lead) => {
-          const s = STATUS_CONFIG[lead.status] ?? STATUS_CONFIG.novo;
-          return (
-            <div key={lead.id} className="bg-white rounded-[2rem] border border-gray-100 p-5 shadow-sm active:scale-[0.98] transition-transform">
-              <div className="flex justify-between items-start mb-4">
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-black text-slate-950 text-lg leading-tight truncate">{lead.customer_name}</h3>
-                  <p className="text-xs text-gray-900 font-bold tracking-tight">{lead.customer_whatsapp}</p>
+      {/* Mobile view and Empty state handled via Dialog which is outside */}
+      
+      {/* Edit Lead Dialog */}
+      <Dialog open={!!editingLead} onOpenChange={(open) => !open && setEditingLead(null)}>
+        <DialogContent className="sm:max-w-[500px] rounded-[2.5rem] p-8">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-display font-black tracking-tight">Editar Lead</DialogTitle>
+          </DialogHeader>
+          
+          {editingLead && (
+            <form onSubmit={handleSaveEdit} className="space-y-6 mt-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Nome do Cliente</Label>
+                  <Input 
+                    value={editingLead.customer_name as string || ""}
+                    onChange={(e) => setEditingLead({...editingLead, customer_name: e.target.value})}
+                    className="rounded-2xl border-gray-100 bg-gray-50/50"
+                  />
                 </div>
-                <Badge className={cn("font-black text-[9px] rounded-full px-3 py-1 shrink-0", s.className)}>
-                  {s.label}
-                </Badge>
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">WhatsApp</Label>
+                  <Input 
+                    value={editingLead.customer_whatsapp as string || ""}
+                    onChange={(e) => setEditingLead({...editingLead, customer_whatsapp: e.target.value})}
+                    className="rounded-2xl border-gray-100 bg-gray-50/50"
+                  />
+                </div>
               </div>
 
-              <div className="bg-white rounded-2xl p-4 mb-4 border border-gray-100 shadow-sm">
-                <p className="text-[9px] font-black uppercase text-gray-950 tracking-widest mb-1">Interesse:</p>
-                <p className="font-black text-sm text-primary truncate leading-tight">
-                   {lead.vehicle?.brand?.name} {lead.vehicle?.model}
-                </p>
-                {lead.notes && (
-                   <p className="text-[10px] text-slate-950 font-bold mt-1 line-clamp-2 leading-relaxed">
-                     "{lead.notes}"
-                   </p>
-                )}
+              <div className="space-y-2">
+                <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Vendedor Responsável</Label>
+                <Select
+                  value={editingLead.seller_id as string || "none"}
+                  onValueChange={(val) => {
+                    const sel = sellers.find(s => s.id === val);
+                    setEditingLead({
+                      ...editingLead, 
+                      seller_id: val === "none" ? "" : val,
+                      seller: val === "none" ? null : { name: sel?.name || "" }
+                    });
+                  }}
+                >
+                  <SelectTrigger className="rounded-2xl border-gray-100 bg-gray-50/50 text-gray-900 font-bold">
+                    <SelectValue placeholder="Selecione um vendedor" />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-2xl shadow-2xl border-gray-100">
+                    <SelectItem value="none" className="text-gray-400 font-bold italic">Não atribuído</SelectItem>
+                    {sellers.map((s) => (
+                      <SelectItem key={s.id} value={s.id} className="font-bold text-slate-900">{s.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
-              <div className="flex items-center justify-between pt-4 border-t border-gray-50/50">
-                  <div className="flex items-center gap-2">
-                    <Clock className="w-3 h-3 text-gray-950" />
-                    <span className="text-[11px] text-gray-950 font-black uppercase tracking-tighter">{timeAgo(lead.created_at)} atrás</span>
-                  </div>
-                 <div className="flex gap-2">
-                   {/* WhatsApp Quick Action */}
-                   <Button asChild value="ghost" size="icon" className="h-12 w-12 rounded-2xl bg-green-500 hover:bg-green-600 shadow-lg shadow-green-500/20 active:scale-90">
-                      <a href={`https://wa.me/55${lead.customer_whatsapp.replace(/\D/g, "")}`} target="_blank">
-                        <MessageCircle className="w-5 h-5 text-white" />
-                      </a>
-                   </Button>
-                   {/* More Options */}
-                   <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button 
-                          variant="outline" 
-                          size="icon" 
-                          className="h-12 w-12 rounded-2xl bg-white border-gray-100 shadow-sm hover:shadow-md hover:scale-105 transition-all duration-300"
-                        >
-                          <MoreHorizontal className="w-5 h-5 text-gray-400" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-56 rounded-[1.5rem] p-2">
-                        <DropdownMenuLabel className="px-4 py-2 text-[10px] font-black uppercase text-gray-400 tracking-widest mb-1">Gerenciar Lead</DropdownMenuLabel>
-                        <DropdownMenuSeparator className="bg-gray-50 mb-1" />
-                         {STATUS_TRANSITIONS.map((t) => (
-                           <DropdownMenuItem
-                             key={t.value}
-                             className="rounded-xl px-4 py-3 font-bold text-sm flex gap-3"
-                             onClick={() => updateStatus(lead.id, t.value)}
-                           >
-                             <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center">
-                               {t.icon}
-                             </div>
-                             {t.label}
-                           </DropdownMenuItem>
-                         ))}
-                         <DropdownMenuSeparator className="bg-gray-100 my-1" />
-                         <DropdownMenuItem
-                           onClick={() => handleDelete(lead.id, lead.customer_name)}
-                           className="rounded-xl px-4 py-3 font-bold text-sm flex gap-3 text-red-500"
-                         >
-                            <div className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center">
-                               <Trash2 className="w-4 h-4" />
-                            </div>
-                            Excluir Lead
-                         </DropdownMenuItem>
-                       </DropdownMenuContent>
-                    </DropdownMenu>
-                 </div>
+              <div className="space-y-2">
+                <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Status Atual</Label>
+                <Select
+                  value={(editingLead.status as string) || "novo"}
+                  onValueChange={(val) => setEditingLead({...editingLead, status: val})}
+                >
+                  <SelectTrigger className="rounded-2xl border-gray-100 bg-gray-50/50">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-2xl">
+                    {Object.entries(STATUS_CONFIG).map(([key, cfg]) => (
+                      <SelectItem key={key} value={key}>{cfg.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
-            </div>
-          );
-        })}
 
-        {filtered.length === 0 && (
-          <div className="bg-white rounded-[2.5rem] border border-dashed border-gray-200 p-12 text-center">
-             <Search className="w-12 h-12 text-gray-200 mx-auto mb-4" />
-             <p className="text-gray-400 font-bold uppercase tracking-widest text-xs">Nenhum resultado</p>
-          </div>
-        )}
-      </div>
+              <div className="space-y-2">
+                <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Observações / Notas</Label>
+                <Textarea 
+                  value={editingLead.notes || ""}
+                  onChange={(e) => setEditingLead({...editingLead, notes: e.target.value})}
+                  placeholder="Dicas sobre a negociação..."
+                  className="rounded-2xl border-gray-100 bg-gray-50/50 min-h-[120px] resize-none"
+                />
+              </div>
+
+              <DialogFooter className="pt-4">
+                <Button 
+                  type="button" 
+                  variant="ghost" 
+                  onClick={() => setEditingLead(null)}
+                  className="rounded-xl font-bold"
+                >
+                  Cancelar
+                </Button>
+                <Button 
+                  type="submit" 
+                  disabled={isSaving}
+                  className="bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-black px-8"
+                >
+                  {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                  SALVAR ALTERAÇÕES
+                </Button>
+              </DialogFooter>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
