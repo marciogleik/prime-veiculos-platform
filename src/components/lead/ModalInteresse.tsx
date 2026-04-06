@@ -95,7 +95,7 @@ export default function ModalInteresse({ vehicleId, vehicleLabel, sellerWhatsapp
             <Label htmlFor="whatsapp">Seu WhatsApp</Label>
             <Input 
               id="whatsapp" 
-              placeholder="(00) 00000-0000" 
+              placeholder="(66) 98418-7359" 
               className="h-12 rounded-xl"
               {...register("whatsapp")}
             />

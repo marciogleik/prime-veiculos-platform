@@ -175,10 +175,10 @@ export default async function VeiculoPage({ params }: VeiculoPageProps) {
               <ModalInteresse 
                 vehicleId={v.id} 
                 vehicleLabel={`${v.brand?.name} ${v.model}`}
-                sellerWhatsapp={v.seller?.whatsapp || "00000000000"}
+                sellerWhatsapp={v.seller?.whatsapp || "5566984187359"}
               />
               <Button asChild variant="outline" className="w-full h-14 font-bold border-2 rounded-xl gap-2 hover:bg-green-50 hover:border-green-500 hover:text-green-600">
-                <a href={`https://wa.me/55${v.seller?.whatsapp?.replace(/\D/g, "") || "00000000000"}`} target="_blank">
+                <a href={`https://wa.me/55${v.seller?.whatsapp?.replace(/\D/g, "") || "66984187359"}`} target="_blank">
                   <Phone className="size-5" />
                   WHATSAPP DIRETO
                 </a>

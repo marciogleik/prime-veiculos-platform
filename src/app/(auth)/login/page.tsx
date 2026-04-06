@@ -270,7 +270,7 @@ export default function LoginPage() {
                         <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
                         <Input
                           {...registerForm.register("whatsapp")}
-                          placeholder="(00) 00000-0000"
+                          placeholder="(66) 98418-7359"
                           className="h-14 pl-12 bg-white/5 border-white/10 text-white rounded-2xl placeholder:text-gray-600"
                         />
                       </div>
