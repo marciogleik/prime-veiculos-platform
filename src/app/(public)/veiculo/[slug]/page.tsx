@@ -66,17 +66,17 @@ export default async function VeiculoPage({ params }: VeiculoPageProps) {
 
   if (!v) notFound();
 
-  const precoFormatado = new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  }).format(v.price);
+  // Formatting WhatsApp
+  const cleanPhone = v.seller?.whatsapp?.replace(/\D/g, "") || "66984187359";
+  const finalPhone = cleanPhone.startsWith("55") ? cleanPhone : `55${cleanPhone}`;
+  const whatsappUrl = `https://wa.me/${finalPhone}?text=${encodeURIComponent(`Olá! Tenho interesse no *${v.brand?.name} ${v.model}* que vi no site.`)}`;
 
   return (
     <div className="pt-32 pb-20 container mx-auto px-4 relative">
       {isAdmin && v && (
-        <div className="fixed bottom-24 lg:top-24 left-0 right-0 z-50 flex justify-center pointer-events-none px-4 lg:bottom-auto">
+        <div className="fixed bottom-28 lg:top-24 left-0 right-0 z-50 flex justify-center pointer-events-none px-4 lg:bottom-auto">
           <div className="bg-slate-900/95 text-white px-5 py-2.5 lg:px-6 lg:py-3 rounded-2xl lg:rounded-full shadow-2xl flex items-center gap-3 lg:gap-4 pointer-events-auto border border-white/10 backdrop-blur-xl animate-antigravity shadow-primary/20 max-w-[95vw] lg:max-w-none">
-            <div className="flex flex-col">
+            <div className="flex flex-col text-left">
               <span className="text-[8px] lg:text-[9px] font-black uppercase tracking-widest text-primary">
                 {v.id?.startsWith("mock-") ? "Demonstração Prime" : "Modo Admin"}
               </span>
@@ -95,14 +95,26 @@ export default async function VeiculoPage({ params }: VeiculoPageProps) {
         </div>
       )}
 
-      {/* Mobile Sticky Footer */}
-      <div className="lg:hidden fixed bottom-6 left-6 right-6 z-40 animate-antigravity-slow">
-        <Button asChild className="w-full h-16 rounded-[2rem] bg-green-500 hover:bg-green-600 text-white font-black tracking-widest text-xs shadow-2xl shadow-green-500/40 border-4 border-white">
-          <a href={`https://wa.me/55${v.seller?.whatsapp?.replace(/\D/g, "") || "66984187359"}`} target="_blank" className="flex items-center justify-center gap-3">
-            <Phone className="size-5 fill-current" />
-            CHAMAR NO WHATSAPP
-          </a>
-        </Button>
+      {/* Mobile Sticky Footer - Dual Actions */}
+      <div className="lg:hidden fixed bottom-6 left-4 right-4 z-40 animate-antigravity-slow">
+        <div className="grid grid-cols-2 gap-3">
+          <ModalInteresse 
+            vehicleId={v.id} 
+            vehicleLabel={`${v.brand?.name} ${v.model}`}
+            sellerWhatsapp={finalPhone}
+            trigger={
+              <Button className="w-full h-16 rounded-3xl bg-slate-900 hover:bg-black text-white font-black tracking-widest text-[9px] shadow-2xl border-4 border-white">
+                TENHO INTERESSE
+              </Button>
+            }
+          />
+          <Button asChild className="w-full h-16 rounded-3xl bg-green-500 hover:bg-green-600 text-white font-black tracking-widest text-[9px] shadow-2xl shadow-green-500/20 border-4 border-white">
+            <a href={whatsappUrl} target="_blank" className="flex items-center justify-center gap-2">
+              <Phone className="size-4 fill-current pt-0.5" />
+              WHATSAPP
+            </a>
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
@@ -117,8 +129,8 @@ export default async function VeiculoPage({ params }: VeiculoPageProps) {
             </p>
           </div>
 
-          <div className="bg-white rounded-3xl p-8 border border-gray-100">
-            <h2 className="text-2xl font-display font-bold mb-6">Opcionais</h2>
+          <div className="bg-white rounded-3xl p-8 border border-gray-100 border-l-4 border-l-primary">
+            <h2 className="text-2xl font-display font-bold mb-6">Opcionais de Fábrica</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               {v.optionals?.[0]?.split(',').map((opt: string) => (
                 <div key={opt} className="flex items-center gap-2 text-gray-600">
@@ -134,49 +146,49 @@ export default async function VeiculoPage({ params }: VeiculoPageProps) {
         <div className="lg:col-span-4 space-y-6">
           <div className="bg-white rounded-3xl p-8 border border-gray-100 sticky top-32">
             <div className="mb-6">
-              <span className="text-gray-400 font-bold uppercase tracking-widest text-xs mb-2 block">
+              <span className="text-primary font-black uppercase tracking-[0.4em] text-[10px] mb-2 block">
                 {v.brand?.name}
               </span>
-              <h1 className="text-4xl font-display font-bold mb-2">{v.model}</h1>
-              <p className="text-gray-500 font-medium">{v.version}</p>
+              <h1 className="text-4xl font-display font-black tracking-tighter mb-2">{v.model}</h1>
+              <p className="text-premium-grey font-medium tracking-tight">{v.version}</p>
             </div>
 
             <div className="flex items-center gap-4 mb-8 pb-8 border-b border-gray-100">
-              <span className="text-4xl font-display font-bold text-primary">{precoFormatado}</span>
+              <span className="text-4xl font-display font-black text-primary">{precoFormatado}</span>
               {v.accepts_proposal && (
-                <Badge variant="outline" className="border-green-500 text-green-600 bg-green-50">
+                <Badge variant="outline" className="border-green-500 text-green-600 bg-green-50 font-black text-[9px] px-3">
                   ACEITA PROPOSTA
                 </Badge>
               )}
             </div>
 
-            <div className="grid grid-cols-2 gap-4 mb-8">
-              <div className="bg-gray-50 p-4 rounded-2xl flex items-center gap-3">
-                <Calendar className="w-5 h-5 text-gray-400" />
+            <div className="grid grid-cols-2 gap-3 mb-8">
+              <div className="bg-slate-50 p-4 rounded-2xl flex items-center gap-3 border border-slate-100/50">
+                <Calendar className="w-5 h-5 text-slate-400" />
                 <div>
-                  <span className="block text-xs text-gray-400 font-bold uppercase">Ano</span>
-                  <span className="font-bold">{v.year_fab}/{v.year_model}</span>
+                  <span className="block text-[9px] text-slate-400 font-black uppercase tracking-widest leading-none mb-1">Ano</span>
+                  <span className="font-bold text-sm">{v.year_fab}/{v.year_model}</span>
                 </div>
               </div>
-              <div className="bg-gray-50 p-4 rounded-2xl flex items-center gap-3">
-                <Gauge className="w-5 h-5 text-gray-400" />
+              <div className="bg-slate-50 p-4 rounded-2xl flex items-center gap-3 border border-slate-100/50">
+                <Gauge className="w-5 h-5 text-slate-400" />
                 <div>
-                  <span className="block text-xs text-gray-400 font-bold uppercase">KM</span>
-                  <span className="font-bold">{v.mileage.toLocaleString()}</span>
+                  <span className="block text-[9px] text-slate-400 font-black uppercase tracking-widest leading-none mb-1">KM</span>
+                  <span className="font-bold text-sm">{v.mileage.toLocaleString()}</span>
                 </div>
               </div>
-              <div className="bg-gray-50 p-4 rounded-2xl flex items-center gap-3">
-                <Fuel className="w-5 h-5 text-gray-400" />
+              <div className="bg-slate-50 p-4 rounded-2xl flex items-center gap-3 border border-slate-100/50">
+                <Fuel className="w-5 h-5 text-slate-400" />
                 <div>
-                  <span className="block text-xs text-gray-400 font-bold uppercase">Motor</span>
-                  <span className="font-bold">{v.fuel}</span>
+                  <span className="block text-[9px] text-slate-400 font-black uppercase tracking-widest leading-none mb-1">Motor</span>
+                  <span className="font-bold text-sm tracking-tight">{v.fuel}</span>
                 </div>
               </div>
-              <div className="bg-gray-50 p-4 rounded-2xl flex items-center gap-3">
-                <Settings2 className="w-5 h-5 text-gray-400" />
+              <div className="bg-slate-50 p-4 rounded-2xl flex items-center gap-3 border border-slate-100/50">
+                <Settings2 className="w-5 h-5 text-slate-400" />
                 <div>
-                  <span className="block text-xs text-gray-400 font-bold uppercase">Câmbio</span>
-                  <span className="font-bold">{v.transmission}</span>
+                  <span className="block text-[9px] text-slate-400 font-black uppercase tracking-widest leading-none mb-1">Câmbio</span>
+                  <span className="font-bold text-sm tracking-tight">{v.transmission}</span>
                 </div>
               </div>
             </div>
@@ -185,17 +197,17 @@ export default async function VeiculoPage({ params }: VeiculoPageProps) {
               <ModalInteresse 
                 vehicleId={v.id} 
                 vehicleLabel={`${v.brand?.name} ${v.model}`}
-                sellerWhatsapp={v.seller?.whatsapp || "5566984187359"}
+                sellerWhatsapp={finalPhone}
               />
-              <Button asChild variant="outline" className="w-full h-14 font-bold border-2 rounded-xl gap-2 hover:bg-green-50 hover:border-green-500 hover:text-green-600">
-                <a href={`https://wa.me/55${v.seller?.whatsapp?.replace(/\D/g, "") || "66984187359"}`} target="_blank">
+              <Button asChild variant="outline" className="w-full h-14 font-black text-[10px] tracking-[0.2em] border-2 rounded-xl gap-3 hover:bg-green-50 hover:border-green-500 hover:text-green-600 transition-all">
+                <a href={whatsappUrl} target="_blank">
                   <Phone className="size-5" />
                   WHATSAPP DIRETO
                 </a>
               </Button>
-              <Button variant="ghost" className="w-full h-12 font-bold gap-2 text-gray-400">
+              <Button variant="ghost" className="w-full h-12 font-black text-[10px] tracking-[0.1em] gap-3 text-slate-400 hover:text-slate-600">
                 <Share2 className="size-4" />
-                Compartilhar Veículo
+                COMPARTILHAR VEÍCULO
               </Button>
             </div>
 
