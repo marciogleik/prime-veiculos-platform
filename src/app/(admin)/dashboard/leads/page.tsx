@@ -10,7 +10,7 @@ export default async function LeadsPage() {
 
   const { data: dbLeads } = await supabase
     .from("leads")
-    .select("*, vehicle:vehicles(model, brand:brands(name)), seller:sellers(name)")
+    .select("*, vehicle:vehicles(model, brand:brands(name), photos:vehicle_photos(url)), seller:sellers(name)")
     .order("created_at", { ascending: false });
 
   const { data: sellers } = await supabase

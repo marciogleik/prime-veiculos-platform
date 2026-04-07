@@ -54,10 +54,38 @@ const BRAND_SUGGESTIONS = [
 ];
 
 const PREMIUM_OPTIONALS = [
-  "Banco em Couro", "Teto Solar", "Rodas Aro 20+", "Sistema de Som Premium", 
-  "Faróis Full LED", "Câmera 360", "Park Assist", "Controle de Cruzeiro Adaptativo", 
-  "Assistente de Faixa", "Head-up Display", "Pacote Esportivo", "Volante Multifuncional", 
-  "Conexão Bluetooth", "Apple CarPlay", "Android Auto"
+  "Ar-condicionado",
+  "Ar-condicionado digital (dual zone)",
+  "Direção hidráulica",
+  "Direção elétrica",
+  "Vidros elétricos",
+  "Travas elétricas",
+  "Rodas de liga leve",
+  "Central multimídia com Bluetooth",
+  "Câmera de ré",
+  "Sensor de estacionamento dianteiro",
+  "Sensor de estacionamento traseiro",
+  "Bancos em couro",
+  "Piloto automático (cruise control)",
+  "Teto solar",
+  "Faróis de LED",
+  "Faróis de neblina",
+  "Painel digital",
+  "Controle de tração (TCS)",
+  "Controle de estabilidade (ESP)",
+  "Airbags frontais",
+  "Airbags laterais",
+  "Alerta de ponto cego",
+  "Freio ABS",
+  "Carregador por indução",
+  "Entrada USB",
+  "Rodas Aro 20+",
+  "Sistema de Som Premium",
+  "Câmera 360",
+  "Park Assist",
+  "Controle de Cruzeiro Adaptativo (ACC)",
+  "Assistente de Faixa",
+  "Apple CarPlay / Android Auto"
 ];
 
 export default function VeiculoForm({

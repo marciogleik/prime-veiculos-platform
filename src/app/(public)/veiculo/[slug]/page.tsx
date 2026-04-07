@@ -137,12 +137,24 @@ export default async function VeiculoPage({ params }: VeiculoPageProps) {
           <div className="bg-white rounded-3xl p-8 border border-gray-100 border-l-4 border-l-primary">
             <h2 className="text-2xl font-display font-bold mb-6">Opcionais de Fábrica</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {v.optionals?.[0]?.split(',').map((opt: string) => (
-                <div key={opt} className="flex items-center gap-2 text-gray-600">
-                  <CheckCircle2 className="w-5 h-5 text-primary shrink-0" />
-                  <span className="text-sm font-medium">{opt.trim()}</span>
-                </div>
-              ))}
+              {(() => {
+                // Compatibility logic: handles both real DB array and mock string-with-commas
+                const rawOpts = v.optionals || [];
+                const finalOpts = (rawOpts.length === 1 && rawOpts[0].includes(','))
+                  ? rawOpts[0].split(',')
+                  : rawOpts;
+
+                if (finalOpts.length === 0) {
+                  return <p className="text-gray-400 text-sm font-medium italic col-span-full">Informações sobre opcionais não disponíveis.</p>;
+                }
+
+                return finalOpts.map((opt: string) => (
+                  <div key={opt} className="flex items-center gap-2 text-gray-600">
+                    <CheckCircle2 className="w-5 h-5 text-primary shrink-0" />
+                    <span className="text-sm font-medium">{opt.trim()}</span>
+                  </div>
+                ));
+              })()}
             </div>
           </div>
         </div>
