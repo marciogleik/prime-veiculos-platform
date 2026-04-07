@@ -66,6 +66,11 @@ export default async function VeiculoPage({ params }: VeiculoPageProps) {
 
   if (!v) notFound();
 
+  const precoFormatado = new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  }).format(v.price);
+
   // Formatting WhatsApp
   const cleanPhone = v.seller?.whatsapp?.replace(/\D/g, "") || "66984187359";
   const finalPhone = cleanPhone.startsWith("55") ? cleanPhone : `55${cleanPhone}`;
