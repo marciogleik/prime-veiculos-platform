@@ -90,7 +90,7 @@ export default function ModalInteresse({ vehicleId, vehicleLabel, sellerWhatsapp
         </Button>
       )}
       
-      <DialogContent className="sm:max-w-[440px] rounded-[2rem] p-10 border-0 shadow-2xl">
+      <DialogContent className="sm:max-w-[440px] rounded-[2rem] p-10 border-0 shadow-2xl bg-white text-slate-900">
         <DialogHeader className="mb-8">
           <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center mb-4">
             <MessageSquare className="w-6 h-6 text-primary" />
