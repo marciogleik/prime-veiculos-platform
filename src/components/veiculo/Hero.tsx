@@ -62,7 +62,7 @@ export default function Hero({ brands }: HeroProps) {
             className="text-5xl sm:text-6xl md:text-8xl font-display font-black leading-[0.95] mb-8 tracking-tighter"
           >
             Seu próximo carro <br />
-            está na <span className="bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent italic drop-shadow-sm">Prime Veículos</span>
+            está na <span className="inline-block px-2 -mx-2 bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent italic drop-shadow-sm">Prime Veículos</span>
           </motion.h1>
 
           <motion.p 
