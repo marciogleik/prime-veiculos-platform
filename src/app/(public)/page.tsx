@@ -23,20 +23,20 @@ export default async function HomePage() {
 
       {/* Destaques Section */}
       <section className="py-32 container mx-auto px-4 animate-antigravity">
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-20 gap-8">
-          <div className="space-y-4">
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-20 gap-10">
+          <div className="space-y-4 text-center lg:text-left flex flex-col items-center lg:items-start">
             <span className="text-primary font-black uppercase tracking-[0.4em] text-[10px] mb-2 block">
               CURADORIA DE ELITE
             </span>
             <h2 className="text-4xl md:text-7xl font-display font-black tracking-tighter leading-[0.9]">
               ESTOQUE <span className="text-primary italic">PRIME.</span>
             </h2>
-            <p className="text-premium-grey max-w-lg text-lg font-medium leading-relaxed">
+            <p className="text-premium-grey max-w-lg text-lg font-medium leading-relaxed mx-auto lg:mx-0">
               Uma seleção rigorosa de veículos premium para quem não aceita menos que a excelência absoluta.
             </p>
           </div>
-          <Button asChild variant="ghost" className="group rounded-full px-10 h-16 border border-white/10 hover:bg-white/5 font-black text-xs tracking-[0.2em] transition-all">
-            <Link href="/catalogo" className="flex items-center gap-4">
+          <Button asChild variant="ghost" className="group rounded-full px-10 h-16 border border-black/5 hover:bg-black/5 font-black text-xs tracking-[0.2em] transition-all w-full lg:w-auto">
+            <Link href="/catalogo" className="flex items-center gap-4 justify-center">
               VER CATÁLOGO COMPLETO
               <div className="w-12 h-px bg-current group-hover:w-20 transition-all duration-500" />
             </Link>

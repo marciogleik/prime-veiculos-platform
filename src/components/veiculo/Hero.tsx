@@ -121,25 +121,6 @@ export default function Hero({ brands }: HeroProps) {
             </Button>
           </motion.div>
 
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.2 }}
-            className="mt-16 grid grid-cols-3 gap-4 sm:gap-16 max-w-xl"
-          >
-            <div className="space-y-1">
-              <span className="block text-xl sm:text-4xl font-display font-black text-white">+250</span>
-              <span className="text-[10px] text-gray-500 uppercase font-black tracking-widest leading-none">Estoque</span>
-            </div>
-            <div className="space-y-1 border-l border-white/10 pl-4 sm:pl-16">
-              <span className="block text-xl sm:text-4xl font-display font-black text-white">+15k</span>
-              <span className="text-[10px] text-gray-500 uppercase font-black tracking-widest leading-none">Leads</span>
-            </div>
-            <div className="space-y-1 border-l border-white/10 pl-4 sm:pl-16">
-              <span className="block text-xl sm:text-4xl font-display font-black text-white">100%</span>
-              <span className="text-[10px] text-gray-500 uppercase font-black tracking-widest leading-none">Prime</span>
-            </div>
-          </motion.div>
         </div>
       </div>
     </section>
