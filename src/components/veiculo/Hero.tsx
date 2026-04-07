@@ -59,7 +59,7 @@ export default function Hero({ brands }: HeroProps) {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="text-5xl sm:text-6xl md:text-8xl font-display font-black leading-[0.95] mb-8 tracking-tighter"
+            className="text-4xl sm:text-6xl md:text-8xl font-display font-black leading-[0.95] mb-8 tracking-tighter"
           >
             Seu próximo carro <br />
             está na <span className="inline-block px-2 -mx-2 bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent italic drop-shadow-sm">Prime Veículos</span>
@@ -125,19 +125,19 @@ export default function Hero({ brands }: HeroProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1.2 }}
-            className="mt-16 grid grid-cols-3 gap-8 sm:gap-16 max-w-xl"
+            className="mt-16 grid grid-cols-3 gap-4 sm:gap-16 max-w-xl"
           >
             <div className="space-y-1">
-              <span className="block text-2xl sm:text-4xl font-display font-black text-white">+250</span>
-              <span className="text-[10px] text-gray-500 uppercase font-black tracking-widest">Estoque</span>
+              <span className="block text-xl sm:text-4xl font-display font-black text-white">+250</span>
+              <span className="text-[10px] text-gray-500 uppercase font-black tracking-widest leading-none">Estoque</span>
             </div>
-            <div className="space-y-1 border-l border-white/10 pl-8 sm:pl-16">
-              <span className="block text-2xl sm:text-4xl font-display font-black text-white">+15k</span>
-              <span className="text-[10px] text-gray-500 uppercase font-black tracking-widest">Leads</span>
+            <div className="space-y-1 border-l border-white/10 pl-4 sm:pl-16">
+              <span className="block text-xl sm:text-4xl font-display font-black text-white">+15k</span>
+              <span className="text-[10px] text-gray-500 uppercase font-black tracking-widest leading-none">Leads</span>
             </div>
-            <div className="space-y-1 border-l border-white/10 pl-8 sm:pl-16">
-              <span className="block text-2xl sm:text-4xl font-display font-black text-white">100%</span>
-              <span className="text-[10px] text-gray-500 uppercase font-black tracking-widest">Prime</span>
+            <div className="space-y-1 border-l border-white/10 pl-4 sm:pl-16">
+              <span className="block text-xl sm:text-4xl font-display font-black text-white">100%</span>
+              <span className="text-[10px] text-gray-500 uppercase font-black tracking-widest leading-none">Prime</span>
             </div>
           </motion.div>
         </div>

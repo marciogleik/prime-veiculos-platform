@@ -32,11 +32,11 @@ export default function AdminLayout({
                 <Menu className="w-6 h-6 text-gray-900" />
             </Button>
             <div className="flex flex-col sm:flex-row sm:items-center sm:gap-6 min-w-0">
-              <h1 className="text-sm sm:text-xl font-black text-gray-950 uppercase tracking-[0.2em] leading-tight truncate max-w-[180px] sm:max-w-none">
+              <h1 className="text-[9px] sm:text-xl font-black text-gray-950 uppercase tracking-tighter sm:tracking-[0.2em] leading-tight truncate max-w-[130px] sm:max-w-none">
                 Painel Administrativo
               </h1>
               <div className="h-5 w-[1px] bg-gray-200 hidden sm:block shrink-0" />
-              <span className="text-[10px] sm:text-xs font-black text-gray-600 uppercase tracking-[0.3em] mt-1 sm:mt-0 shrink-0">
+              <span className="text-[8px] sm:text-xs font-black text-gray-400 uppercase tracking-[0.2em] sm:tracking-[0.3em] mt-0.5 sm:mt-0 shrink-0">
                 Gestão Prime
               </span>
             </div>

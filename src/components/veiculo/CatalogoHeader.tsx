@@ -18,11 +18,11 @@ export default function CatalogoHeader() {
         </span>
       </motion.div>
       
-      <h1 className="text-6xl md:text-8xl font-display font-black tracking-tighter leading-none mb-6">
-        A CURADORIA <br /> 
+      <h1 className="text-4xl md:text-8xl font-display font-black tracking-tighter leading-[0.9] md:leading-none mb-6">
+        A CURADORIA <br className="md:hidden" /> 
         <span className="text-primary italic relative">
           DEFINITIVA 
-          <Sparkles className="absolute -top-4 -right-8 w-8 h-8 text-primary/30 animate-pulse" />
+          <Sparkles className="absolute -top-4 -right-4 md:-right-8 w-6 h-6 md:w-8 md:h-8 text-primary/30 animate-pulse" />
         </span>
       </h1>
       

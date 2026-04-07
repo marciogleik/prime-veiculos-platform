@@ -74,26 +74,36 @@ export default async function VeiculoPage({ params }: VeiculoPageProps) {
   return (
     <div className="pt-32 pb-20 container mx-auto px-4 relative">
       {isAdmin && v && (
-        <div className="fixed top-24 left-0 right-0 z-50 flex justify-center pointer-events-none px-4">
-          <div className="bg-slate-900 text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-4 pointer-events-auto border border-white/10 backdrop-blur-xl bg-slate-900/90 animate-antigravity shadow-primary/20">
+        <div className="fixed bottom-24 lg:top-24 left-0 right-0 z-50 flex justify-center pointer-events-none px-4 lg:bottom-auto">
+          <div className="bg-slate-900/95 text-white px-5 py-2.5 lg:px-6 lg:py-3 rounded-2xl lg:rounded-full shadow-2xl flex items-center gap-3 lg:gap-4 pointer-events-auto border border-white/10 backdrop-blur-xl animate-antigravity shadow-primary/20 max-w-[95vw] lg:max-w-none">
             <div className="flex flex-col">
-              <span className="text-[9px] font-black uppercase tracking-widest text-primary">
+              <span className="text-[8px] lg:text-[9px] font-black uppercase tracking-widest text-primary">
                 {v.id?.startsWith("mock-") ? "Demonstração Prime" : "Modo Admin"}
               </span>
-              <span className="text-xs font-bold whitespace-nowrap">
-                {v.id?.startsWith("mock-") ? "Transforme este modelo em realidade" : "Gerenciar este veículo"}
+              <span className="text-[10px] lg:text-xs font-bold whitespace-nowrap overflow-hidden text-ellipsis max-w-[120px] lg:max-w-none">
+                {v.id?.startsWith("mock-") ? "Sincronizar modelo" : "Gerenciar este veículo"}
               </span>
             </div>
-            <div className="h-8 w-px bg-white/10 mx-1" />
-            <Button asChild size="sm" className="bg-primary hover:bg-primary/90 font-black text-[10px] tracking-widest px-6 rounded-full group">
+            <div className="h-6 lg:h-8 w-px bg-white/10 mx-1" />
+            <Button asChild size="sm" className="bg-primary hover:bg-primary/90 font-black text-[9px] lg:text-[10px] tracking-widest px-4 lg:px-6 h-9 lg:h-10 rounded-xl lg:rounded-full group shrink-0">
               <Link href={`/dashboard/veiculos/${v.id}/editar`} className="flex items-center gap-2">
                 <Edit2 className="w-3 h-3 group-hover:rotate-12 transition-transform" />
-                {v.id?.startsWith("mock-") ? "SALVAR EM MEU ESTOQUE" : "EDITAR AGORA"}
+                {v.id?.startsWith("mock-") ? "SALVAR" : "EDITAR"}
               </Link>
             </Button>
           </div>
         </div>
       )}
+
+      {/* Mobile Sticky Footer */}
+      <div className="lg:hidden fixed bottom-6 left-6 right-6 z-40 animate-antigravity-slow">
+        <Button asChild className="w-full h-16 rounded-[2rem] bg-green-500 hover:bg-green-600 text-white font-black tracking-widest text-xs shadow-2xl shadow-green-500/40 border-4 border-white">
+          <a href={`https://wa.me/55${v.seller?.whatsapp?.replace(/\D/g, "") || "66984187359"}`} target="_blank" className="flex items-center justify-center gap-3">
+            <Phone className="size-5 fill-current" />
+            CHAMAR NO WHATSAPP
+          </a>
+        </Button>
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
         {/* Left Col: Media & Description */}

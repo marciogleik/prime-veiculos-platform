@@ -59,7 +59,7 @@ export default async function HomePage() {
             <p className="text-gray-400 mb-10 max-w-2xl mx-auto text-lg font-medium">
               Nossos consultores especializados podem encontrar o veículo dos seus sonhos através da nossa rede exclusiva.
             </p>
-            <Button asChild size="lg" className="rounded-2xl h-16 px-12 font-black tracking-[0.3em] bg-white text-black hover:bg-primary hover:text-white transition-all shadow-antigravity active:scale-95">
+            <Button asChild size="lg" className="rounded-2xl h-14 md:h-16 px-8 md:px-12 font-black tracking-[0.1em] md:tracking-[0.3em] pl-[0.2em] md:pl-[0.3em] bg-white text-black hover:bg-primary hover:text-white transition-all shadow-antigravity active:scale-95 w-full md:w-auto">
               <Link href={whatsappUrl} target="_blank">
                 FALAR COM CONSULTOR
               </Link>
