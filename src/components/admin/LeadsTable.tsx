@@ -321,7 +321,7 @@ export default function LeadsTable({ initialLeads, sellers }: { initialLeads: Le
                        </div>
                     </TableCell>
                     <TableCell className="py-8 text-center">
-                      <Select value={status} onValueChange={(val) => updateStatus(lead.id, val)} disabled={isPending}>
+                      <Select value={status} onValueChange={(val) => val && updateStatus(lead.id, val)} disabled={isPending}>
                         <SelectTrigger className={cn("h-11 border-0 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] px-5 gap-3 focus:ring-4 focus:ring-slate-900/5 shadow-md", s.className)}>
                           <SelectValue />
                         </SelectTrigger>
