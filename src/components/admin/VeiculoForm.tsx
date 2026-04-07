@@ -92,23 +92,26 @@ export default function VeiculoForm({
   const resolvedBrandId = (() => {
     const bid = initialData?.brand_id;
     if (!bid) return "";
+    
     // If it's already a UUID, use as is
-    if (/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}/.test(bid)) return bid;
+    if (/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(bid)) {
+      return bid;
+    }
     
     // Fuzzy search: try exact match first
     let match = brands.find(b => b.name.toLowerCase() === bid.toLowerCase());
     
-    // If no exact match, try if DB brand is contained in mock brand string (e.g. "Mercedes" in "Mercedes-AMG")
+    // If no exact match, try if DB brand is contained in mock brand string
     if (!match) {
       match = brands.find(b => bid.toLowerCase().includes(b.name.toLowerCase()));
     }
     
-    // Or if mock brand is contained in DB brand (e.g. "Porsche" in "Porsche Cars")
+    // Or if mock brand is contained in DB brand
     if (!match) {
       match = brands.find(b => b.name.toLowerCase().includes(bid.toLowerCase()));
     }
     
-    return match?.id || bid; // Return found UUID or keep original string (server will handle string-to-uuid)
+    return match?.id || ""; // Return found UUID or empty string (to force selection)
   })();
 
   const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm({
@@ -232,9 +235,11 @@ export default function VeiculoForm({
                       }}
                     >
                       <SelectTrigger className="h-12 sm:h-14 rounded-2xl border-gray-100 bg-gray-50/50 focus:ring-primary/20 transition-all font-bold text-gray-900">
-                        <SelectValue placeholder="Selecione a marca..." />
+                        <SelectValue placeholder="Selecione a marca...">
+                          {brands.find(b => b.id === watch("brand_id"))?.name}
+                        </SelectValue>
                       </SelectTrigger>
-                      <SelectContent className="rounded-2xl shadow-2xl border-gray-100">
+                      <SelectContent className="rounded-2xl shadow-2xl border-gray-100 bg-white dark:bg-slate-900 opacity-100 relative z-[70] min-w-[200px]">
                         {brands.map((b) => (
                           <SelectItem key={b.id} value={b.id} className="rounded-xl py-3 font-bold">
                             {b.name}

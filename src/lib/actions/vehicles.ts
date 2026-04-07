@@ -87,8 +87,19 @@ export async function saveVehicle(formData: any, vehicleId?: string) {
     }
   }
   
+  // Verify if user is a registered seller
+  const { data: seller, error: sellerErr } = await supabase
+    .from("sellers")
+    .select("id")
+    .eq("id", user.id)
+    .single();
+
+  if (sellerErr || !seller) {
+    throw new Error("Seu usuário não está registrado como vendedor. Por favor, complete seu perfil ou contate o suporte.");
+  }
+
   // Ensure we have a valid UUID for the vehicle
-  const idValue = (vehicleId && /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}/.test(vehicleId)) 
+  const idValue = (vehicleId && /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(vehicleId)) 
     ? vehicleId 
     : crypto.randomUUID();
     
@@ -124,12 +135,12 @@ export async function saveVehicle(formData: any, vehicleId?: string) {
     .upsert(vehicleData);
 
   if (error) {
-    console.error("Erro no upsert do veículo:", error);
-    // If it's a seller_id problem, maybe provide help
-    if (error.code === '23503' && error.message.includes('seller_id')) {
-        throw new Error("Seu usuário não está registrado como vendedor no sistema. Entre em contato com o administrador.");
+    console.error("ERRO CRÍTICO NO UPSERT:", error);
+    if (error.code === '23503') {
+      if (error.message.includes('brand_id')) throw new Error("A marca selecionada é inválida.");
+      if (error.message.includes('seller_id')) throw new Error("Usuário vendedor não encontrado.");
     }
-    throw error;
+    throw new Error(`Falha ao salvar veículo: ${error.message}`);
   }
 
   revalidatePath("/catalogo");

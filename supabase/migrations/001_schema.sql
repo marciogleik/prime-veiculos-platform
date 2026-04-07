@@ -38,6 +38,8 @@ create table vehicles (
   accepts_proposal boolean default false,
   seller_id uuid references sellers(id),
   slug text unique,
+  plate text,
+  renavam text,
   created_at timestamptz default now(),
   updated_at timestamptz default now()
 );
@@ -84,6 +86,12 @@ create policy "Fotos públicas" on vehicle_photos
 create policy "Upload autenticado" on vehicle_photos
   for insert with check (auth.role() = 'authenticated');
 
+create policy "Editar fotos autenticado" on vehicle_photos
+  for update using (auth.role() = 'authenticated');
+
+create policy "Apagar fotos autenticado" on vehicle_photos
+  for delete using (auth.role() = 'authenticated');
+
 create policy "Qualquer um pode criar lead" on leads
   for insert with check (true);
 
@@ -95,3 +103,51 @@ create policy "Vendedor lê seus leads" on leads
 
 create policy "Sellers autenticados" on sellers
   for all using (auth.role() = 'authenticated');
+
+create policy "Marcas visíveis para todos" on brands
+  for select using (true);
+
+create policy "Vendedores gerenciam marcas" on brands
+  for all using (auth.role() = 'authenticated');
+
+-- Configuração de Storage (Bucket de Fotos)
+-- Nota: Supabase Storage é gerenciado pelo schema 'storage'.
+-- Estas queries garantem que o bucket exista e as políticas de acesso estejam corretas.
+INSERT INTO storage.buckets (id, name, public) 
+VALUES ('vehicle-photos', 'vehicle-photos', true)
+ON CONFLICT (id) DO NOTHING;
+
+CREATE POLICY "Fotos Públicas" ON storage.objects FOR SELECT USING (bucket_id = 'vehicle-photos');
+
+CREATE POLICY "Upload Fotos Autenticado" ON storage.objects FOR INSERT WITH CHECK (
+  bucket_id = 'vehicle-photos' AND auth.role() = 'authenticated'
+);
+
+CREATE POLICY "Gestão Fotos Autenticado" ON storage.objects FOR ALL USING (
+  bucket_id = 'vehicle-photos' AND auth.role() = 'authenticated'
+);
+
+-- Configurações Globais do Site
+create table site_settings (
+  id uuid primary key default gen_random_uuid(),
+  dealership_name text not null default 'Prime Veículos',
+  dealership_whatsapp text,
+  dealership_email text,
+  dealership_address text,
+  dealership_cnpj text,
+  is_cpf_api_active boolean default false,
+  updated_at timestamptz default now()
+);
+
+alter table site_settings enable row level security;
+
+create policy "Configurações visíveis para autenticados" on site_settings
+  for select using (auth.role() = 'authenticated');
+
+create policy "Administradores gerenciam configurações" on site_settings
+  for all using (
+    exists (select 1 from sellers where id = auth.uid() and is_admin = true)
+  );
+
+-- Inicializa as configurações padrão
+insert into site_settings (dealership_name) values ('Prime Veículos') on conflict do nothing;
