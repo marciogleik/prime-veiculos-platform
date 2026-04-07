@@ -438,7 +438,7 @@ export default function LeadsTable({ initialLeads, sellers }: { initialLeads: Le
                      <Edit2 className="w-4 h-4 md:w-5 md:h-5 mr-2 md:mr-3" />
                      EDITAR
                   </Button>
-                  <Select value={lead.status || "novo"} onValueChange={(val) => updateStatus(lead.id, val)}>
+                  <Select value={lead.status || "novo"} onValueChange={(val) => val && updateStatus(lead.id, val)}>
                      <SelectTrigger className={cn("h-12 sm:h-14 md:h-16 rounded-2xl md:rounded-3xl border-0 font-black text-[9px] md:text-[10px] uppercase tracking-widest shadow-xl", STATUS_CONFIG[lead.status || "novo"].className)}>
                         <SelectValue />
                      </SelectTrigger>
