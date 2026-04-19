@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, Outfit } from "next/font/google";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { Toaster } from "sonner";
 import "./globals.css";
 import { Providers } from "./providers";
 
@@ -26,9 +28,6 @@ export const metadata: Metadata = {
     type: "website",
   },
 };
-
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { Toaster } from "sonner";
 
 export default function RootLayout({
   children,
