@@ -42,6 +42,7 @@ const vehicleSchema = z.object({
   accepts_proposal: z.boolean().default(false),
   plate: z.string().max(8, "Placa inválida").optional().nullable(),
   renavam: z.string().max(11, "Renavam inválido").optional().nullable(),
+  sync_photos: z.boolean().default(true),
 });
 
 type VehicleFormValues = z.infer<typeof vehicleSchema>;
@@ -153,6 +154,7 @@ export default function VeiculoForm({
           fuel: initialData.fuel as any,
           plate: initialData.plate || "",
           renavam: initialData.renavam || "",
+          sync_photos: initialData.sync_photos ?? true,
         }
       : {
           status: "disponível",
@@ -163,59 +165,84 @@ export default function VeiculoForm({
           year_fab: new Date().getFullYear(),
           year_model: new Date().getFullYear(),
           mileage: 0,
+          sync_photos: true,
         },
   });
 
   const onSubmit = async (data: VehicleFormValues) => {
+    if (loading) return; // Prevent double submission
+    
     setLoading(true);
     try {
-      // If it's a mock vehicle, we treat it as a NEW creation (don't pass initialData.id)
       const saveId = initialData?.id?.startsWith("mock-") ? undefined : initialData?.id;
-      const result = await saveVehicle(data, saveId);
 
-      if (result.success) {
-        // 1. Delete removed photos from Supabase
-        for (const photo of removedPhotoIds) {
-          await supabase.from("vehicle_photos").delete().eq("id", photo.id);
+      // 1. Physically delete removed photos from Storage
+      for (const photo of removedPhotoIds) {
+        if (photo.path && photo.path !== 'external') {
           await supabase.storage.from("vehicle-photos").remove([photo.path]);
         }
-
-        // 2. Handle current photos (Upload new ones, Update order of existing ones)
-        for (let i = 0; i < photos.length; i++) {
-          const photo = photos[i];
-          if (photo.file) {
-            const fileExt = photo.file.name.split(".").pop();
-            const fileName = `${result.id}/${Math.random()}.${fileExt}`;
-
-            const { error: uploadError } = await supabase.storage
-              .from("vehicle-photos")
-              .upload(fileName, photo.file);
-
-            if (uploadError) throw uploadError;
-
-            const {
-              data: { publicUrl },
-            } = supabase.storage.from("vehicle-photos").getPublicUrl(fileName);
-
-            await supabase.from("vehicle_photos").insert({
-              vehicle_id: result.id,
-              url: publicUrl,
-              storage_path: fileName,
-              order_index: i,
-            });
-          } else {
-            await supabase
-              .from("vehicle_photos")
-              .update({ order_index: i })
-              .eq("id", photo.id);
-          }
-        }
-
-        router.push("/dashboard/veiculos");
       }
-    } catch (error) {
+
+      // 2. Process photos and collect final data with GUARANTEED sequential order
+      const finalPhotosData: { url: string, storage_path: string, order_index: number }[] = [];
+      
+      for (let i = 0; i < photos.length; i++) {
+        const photo = photos[i];
+        
+        if (photo.file) {
+          // New file upload
+          const fileExt = photo.file.name.split(".").pop();
+          const fileName = `${saveId || 'new'}/${Math.random().toString(36).substring(7)}.${fileExt}`;
+
+          const { error: uploadError } = await supabase.storage
+            .from("vehicle-photos")
+            .upload(fileName, photo.file);
+
+          if (uploadError) throw uploadError;
+
+          const { data: { publicUrl } } = supabase.storage.from("vehicle-photos").getPublicUrl(fileName);
+          
+          finalPhotosData.push({
+            url: publicUrl,
+            storage_path: fileName,
+            order_index: i // Sequential index
+          });
+        } else {
+          // Existing photo
+          finalPhotosData.push({
+            url: photo.url,
+            storage_path: photo.storage_path,
+            order_index: i // Sequential index
+          });
+        }
+      }
+
+      // 3. Save everything atomicaly via Server Action
+      // Robust Gallery Change Detection
+      const initialGalleryState = (initialData?.photos || [])
+        .map(p => p.url)
+        .join('|');
+      
+      const currentGalleryState = photos
+        .map(p => p.url)
+        .join('|');
+      
+      const wasGalleryModified = initialGalleryState !== currentGalleryState || photos.some(p => p.file);
+
+      const dataWithSyncFlag = {
+        ...data,
+        sync_photos: wasGalleryModified ? false : data.sync_photos
+      };
+
+      const result = await saveVehicle(dataWithSyncFlag, saveId, finalPhotosData);
+
+      if (result.success) {
+        router.push("/dashboard/veiculos");
+        router.refresh();
+      }
+    } catch (error: any) {
       console.error(error);
-      alert("Erro ao salvar veículo");
+      alert(`Erro ao salvar veículo: ${error.message}`);
     } finally {
       setLoading(false);
     }

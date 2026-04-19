@@ -55,8 +55,14 @@ function SortablePhoto({ photo, isMain, onRemove }: SortablePhotoProps) {
       style={style} 
       className="relative aspect-[16/10] bg-gray-100 rounded-2xl overflow-hidden group border border-gray-100"
     >
-      <div {...attributes} {...listeners} className="w-full h-full cursor-grab active:cursor-grabbing">
-        <Image src={photo.url} alt="Veículo" fill className="object-cover" />
+      <div {...attributes} {...listeners} className="relative w-full h-full cursor-grab active:cursor-grabbing">
+        <Image 
+          src={photo.url} 
+          alt="Veículo" 
+          fill 
+          sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 20vw"
+          className="object-cover" 
+        />
       </div>
       
       <Button

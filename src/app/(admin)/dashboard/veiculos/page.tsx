@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import VeiculoDataTable from "@/components/admin/VeiculoDataTable";
+import InventorySyncButton from "@/components/admin/InventorySyncButton";
 import { Vehicle } from "@/types";
 
 export const metadata = {
@@ -20,10 +21,13 @@ export default async function VeiculosPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <p className="text-[11px] font-black text-gray-400 uppercase tracking-[0.3em] mb-2 leading-none">Administração</p>
-        <h1 className="text-4xl sm:text-5xl font-black tracking-tight text-gray-950">Gestão de Estoque</h1>
-        <p className="text-gray-500 mt-3 font-bold text-sm">Gerencie seu inventário de veículos premium</p>
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div>
+          <p className="text-[11px] font-black text-gray-400 uppercase tracking-[0.3em] mb-2 leading-none">Administração</p>
+          <h1 className="text-4xl sm:text-5xl font-black tracking-tight text-gray-950">Gestão de Estoque</h1>
+          <p className="text-gray-500 mt-3 font-bold text-sm">Gerencie seu inventário de veículos premium</p>
+        </div>
+        <InventorySyncButton />
       </div>
 
       <VeiculoDataTable initialData={vehicles} />

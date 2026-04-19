@@ -45,6 +45,7 @@ export interface Vehicle {
   slug: string
   plate?: string
   renavam?: string
+  sync_photos?: boolean
   photos?: VehiclePhoto[]
   created_at: string
   updated_at: string

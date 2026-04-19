@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
@@ -22,6 +23,7 @@ const vehicleSchema = z.object({
   accepts_proposal: z.boolean(),
   plate: z.string().optional().nullable(),
   renavam: z.string().optional().nullable(),
+  sync_photos: z.boolean().optional().default(true),
 });
 
 function generateSlug(brand: string, model: string, year: number, id: string) {
@@ -32,7 +34,7 @@ function generateSlug(brand: string, model: string, year: number, id: string) {
   return `${base}-${id.substring(0, 4)}`;
 }
 
-export async function saveVehicle(formData: any, vehicleId?: string) {
+export async function saveVehicle(formData: any, vehicleId?: string, photosData?: { url: string, storage_path: string, order_index: number }[]) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -52,12 +54,8 @@ export async function saveVehicle(formData: any, vehicleId?: string) {
       brandName = b.name;
     }
   } else {
-    // Try to find by name, very fuzzy
     const { data: allBrands } = await supabase.from("brands").select("id, name");
-    
-    // Normalize string for better matching
     const searchName = finalBrandId.toLowerCase().trim();
-    
     const matchedBrand = allBrands?.find(b => {
       const dbName = b.name.toLowerCase();
       return searchName.includes(dbName) || dbName.includes(searchName) || 
@@ -68,18 +66,12 @@ export async function saveVehicle(formData: any, vehicleId?: string) {
       finalBrandId = matchedBrand.id;
       brandName = matchedBrand.name;
     } else {
-       // Try to insert new brand (might fail due to RLS, but we try)
        const { data: newBrand, error: brandErr } = await supabase.from("brands").insert({
           id: crypto.randomUUID(),
           name: finalBrandId.trim(),
        }).select("id, name").single();
        
-       if (brandErr) {
-          console.error("Erro ao criar marca:", brandErr);
-          // If we can't create or find, we MUST fail with instructions
-          throw new Error(`A marca '${finalBrandId}' não foi encontrada no sistema e não pôde ser criada automaticamente. Certifique-se de rodar o script SQL de permissões ou selecione uma marca existente.`);
-       }
-       
+       if (brandErr) throw new Error(`A marca '${finalBrandId}' não pôde ser criada.`);
        if (newBrand) {
           finalBrandId = newBrand.id;
           brandName = newBrand.name;
@@ -87,27 +79,25 @@ export async function saveVehicle(formData: any, vehicleId?: string) {
     }
   }
   
-  // Verify if user is a registered seller
-  const { data: seller, error: sellerErr } = await supabase
-    .from("sellers")
-    .select("id")
-    .eq("id", user.id)
-    .single();
+  const { data: seller } = await supabase.from("sellers").select("id").eq("id", user.id).single();
+  if (!seller) throw new Error("Usuário vendedor não encontrado.");
 
-  if (sellerErr || !seller) {
-    throw new Error("Seu usuário não está registrado como vendedor. Por favor, complete seu perfil ou contate o suporte.");
-  }
-
-  // Ensure we have a valid UUID for the vehicle
   const idValue = (vehicleId && /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(vehicleId)) 
     ? vehicleId 
     : crypto.randomUUID();
     
+  // Fetch existing external_id to preserve the link with Revenda Mais
+  let existingExternalId = null;
+  if (vehicleId) {
+    const { data: v } = await supabase.from("vehicles").select("external_id").eq("id", idValue).single();
+    if (v) existingExternalId = v.external_id;
+  }
+
   const slug = generateSlug(brandName, validated.model, validated.year_model, idValue);
 
-  // Construct final data strictly
   const vehicleData = {
     id: idValue,
+    external_id: existingExternalId,
     brand_id: finalBrandId,
     model: validated.model,
     year_fab: validated.year_fab,
@@ -125,22 +115,34 @@ export async function saveVehicle(formData: any, vehicleId?: string) {
     accepts_proposal: validated.accepts_proposal,
     plate: validated.plate || null,
     renavam: validated.renavam || null,
+    sync_photos: validated.sync_photos,
     slug,
     seller_id: user.id, 
     updated_at: new Date().toISOString(),
   };
 
-  const { error } = await supabase
-    .from("vehicles")
-    .upsert(vehicleData);
+  const { error } = await supabase.from("vehicles").upsert(vehicleData);
+  if (error) throw new Error(`Falha ao salvar veículo: ${error.message}`);
 
-  if (error) {
-    console.error("ERRO CRÍTICO NO UPSERT:", error);
-    if (error.code === '23503') {
-      if (error.message.includes('brand_id')) throw new Error("A marca selecionada é inválida.");
-      if (error.message.includes('seller_id')) throw new Error("Usuário vendedor não encontrado.");
+  // PHOTO SYNC (Atomicly handled on server with ADMIN privileges)
+  if (photosData) {
+    const adminSupabase = createAdminClient();
+    
+    // 1. Clear current photos for this vehicle strictly in DB (Bypassing RLS)
+    const { error: delErr } = await adminSupabase.from("vehicle_photos").delete().eq("vehicle_id", idValue);
+    if (delErr) console.error("Erro ao deletar fotos antigas:", delErr.message);
+
+    // 2. Insert new ordered list (Bypassing RLS)
+    if (photosData.length > 0) {
+      const photosToInsert = photosData.map(p => ({
+        vehicle_id: idValue,
+        url: p.url,
+        storage_path: p.storage_path,
+        order_index: p.order_index
+      }));
+      const { error: insErr } = await adminSupabase.from("vehicle_photos").insert(photosToInsert);
+      if (insErr) throw new Error(`Falha ao salvar fotos: ${insErr.message}`);
     }
-    throw new Error(`Falha ao salvar veículo: ${error.message}`);
   }
 
   revalidatePath("/catalogo");
@@ -151,8 +153,14 @@ export async function saveVehicle(formData: any, vehicleId?: string) {
 }
 
 export async function deleteVehicle(id: string) {
-  const supabase = await createClient();
-  const { error } = await supabase.from("vehicles").delete().eq("id", id);
+  const adminSupabase = createAdminClient();
+  
+  // 1. Manually delete leads for this vehicle (resolves FK 23503)
+  const { error: leadsErr } = await adminSupabase.from("leads").delete().eq("vehicle_id", id);
+  if (leadsErr) console.error("Erro ao limpar leads do veículo:", leadsErr.message);
+
+  // 2. Delete the vehicle (photos will cascade normally)
+  const { error } = await adminSupabase.from("vehicles").delete().eq("id", id);
   
   if (error) throw error;
   

@@ -25,9 +25,7 @@ export default async function CatalogoPage() {
     .select("*")
     .order("name", { ascending: true });
 
-  const vehicles: Vehicle[] = (dbVehicles && dbVehicles.length > 0)
-    ? (dbVehicles as unknown as Vehicle[])
-    : MOCK_VEHICLES;
+  const vehicles: Vehicle[] = (dbVehicles as unknown as Vehicle[]) || [];
 
   const brands: Brand[] = (dbBrands as Brand[]) || [];
 

@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  output: 'standalone',
   images: {
     remotePatterns: [
       {
@@ -10,6 +11,14 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'zllitpmsdfjgtbuittvy.supabase.co',
+      },
+      {
+        protocol: 'https',
+        hostname: 's3.carro57.com.br',
+      },
+      {
+        protocol: 'https',
+        hostname: 'app.revendamais.com.br',
       },
     ],
   },
