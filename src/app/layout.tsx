@@ -18,15 +18,6 @@ const outfit = Outfit({
 export const metadata: Metadata = {
   title: "Prime Veículos | Concessionária Premium",
   description: "A melhor seleção de veículos premium com transparência e qualidade.",
-  metadataBase: new URL("https://primeveiculosab.com.br"),
-  openGraph: {
-    title: "Prime Veículos | Concessionária Premium",
-    description: "A melhor seleção de veículos premium com transparência e qualidade.",
-    url: "https://primeveiculosab.com.br",
-    siteName: "Prime Veículos",
-    locale: "pt_BR",
-    type: "website",
-  },
 };
 
 export default function RootLayout({
