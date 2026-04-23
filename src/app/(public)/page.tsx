@@ -26,13 +26,13 @@ export default async function HomePage() {
         <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-20 gap-10">
           <div className="space-y-4 text-center lg:text-left flex flex-col items-center lg:items-start">
             <span className="text-primary font-black uppercase tracking-[0.4em] text-[10px] mb-2 block">
-              CURADORIA DE ELITE
+              OS MELHORES SEMINOVOS
             </span>
             <h2 className="text-4xl md:text-7xl font-display font-black tracking-tighter leading-[0.9]">
               ESTOQUE <span className="text-primary italic">PRIME.</span>
             </h2>
-            <p className="text-premium-grey max-w-lg text-lg font-medium leading-relaxed mx-auto lg:mx-0">
-              Uma seleção rigorosa de veículos premium para quem não aceita menos que a excelência absoluta.
+            <p className="text-contrast-black max-w-lg text-lg font-medium leading-relaxed mx-auto lg:mx-0">
+              Uma seleção rigorosa de veículos selecionados para quem não aceita menos que a excelência absoluta.
             </p>
           </div>
           <Button asChild variant="ghost" className="group rounded-full px-10 h-16 border border-black/5 hover:bg-black/5 font-black text-xs tracking-[0.2em] transition-all w-full lg:w-auto">
@@ -78,8 +78,8 @@ export default async function HomePage() {
             <h2 className="text-4xl md:text-6xl font-display font-black tracking-tighter">
               A EXPERIÊNCIA <span className="text-primary italic">PRIME</span>
             </h2>
-            <p className="text-premium-grey text-lg font-medium">
-              Excelência em cada detalhe, desde a curadoria até a entrega técnica do seu novo veículo.
+            <p className="text-contrast-black text-lg font-medium">
+              Excelência em cada detalhe, desde o atendimento até a entrega técnica do seu novo veículo.
             </p>
           </div>
 
@@ -94,7 +94,7 @@ export default async function HomePage() {
                   <item.icon className="text-white w-8 h-8" />
                 </div>
                 <h3 className="text-2xl font-display font-black mb-6 uppercase tracking-tight">{item.title}</h3>
-                <p className="text-premium-grey leading-relaxed font-medium">
+                <p className="text-contrast-black leading-relaxed font-medium">
                   {item.desc}
                 </p>
               </div>

@@ -7,7 +7,7 @@ import { Vehicle, Brand } from "@/types";
 
 export const metadata = {
   title: "Catálogo de Veículos | Prime Veículos",
-  description: "Confira nosso estoque completo de veículos premium revisados e com garantia.",
+  description: "Confira nosso estoque completo de veículos selecionados revisados e com garantia.",
 };
 
 export default async function CatalogoPage() {

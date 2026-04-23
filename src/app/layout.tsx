@@ -16,8 +16,8 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "Prime Veículos | Concessionária Premium",
-  description: "A melhor seleção de veículos premium com transparência e qualidade.",
+  title: "Prime Veículos | Seminovos de Qualidade",
+  description: "A melhor seleção de veículos seminovos com transparência e qualidade.",
 };
 
 export default function RootLayout({

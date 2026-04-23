@@ -205,7 +205,7 @@ export default function ConfiguracoesPage() {
                       <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Endereço Físico</Label>
                       <div className="relative">
                         <MapPin className="absolute left-4 top-4 w-4 h-4 text-rose-500" />
-                        <Input name="dealership_address" defaultValue={settings?.dealership_address} placeholder="Rua Premium, 1000 - São Paulo, SP" className="h-12 pl-12 rounded-xl" />
+                        <Input name="dealership_address" defaultValue={settings?.dealership_address} placeholder="Av. Principal, 1000 - Centro" className="h-12 pl-12 rounded-xl" />
                       </div>
                     </div>
 

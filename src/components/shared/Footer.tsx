@@ -15,7 +15,7 @@ export default function Footer() {
               <Logo variant="light" className="h-10" />
             </Link>
             <p className="text-gray-100 leading-relaxed mb-6 text-sm">
-              Sua concessionária premium de confiança. Qualidade, transparência e os melhores veículos do mercado.
+              Sua concessionária de confiança. Qualidade, transparência e os melhores veículos do mercado.
             </p>
             <div className="flex gap-4">
               <a href="https://www.instagram.com/primeveiculos_ab?igsh=bjFtb3ZzbDZwNzV1" target="_blank" className="bg-white/10 p-2 rounded-full hover:bg-primary transition-colors">

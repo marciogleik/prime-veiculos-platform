@@ -34,7 +34,7 @@ export default function Hero({ brands }: HeroProps) {
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 1.5, ease: "easeOut" }}
           src="/hero-car.png" 
-          alt="Premium Car" 
+          alt="Veículo" 
           className="absolute inset-0 w-full h-full object-cover object-[75%_center] opacity-80"
         />
         {/* Gradient overlay: strong black on left for text, transparent on right to show car */}
@@ -51,7 +51,7 @@ export default function Hero({ brands }: HeroProps) {
             transition={{ delay: 0.2 }}
           >
             <Badge className="mb-8 bg-primary/20 hover:bg-primary/30 text-primary border-primary/20 py-2 px-6 rounded-full font-black text-xs tracking-[0.2em] uppercase">
-              Premium Experience
+              Experiência Prime
             </Badge>
           </motion.div>
 
@@ -78,7 +78,7 @@ export default function Hero({ brands }: HeroProps) {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.8 }}
-            className="glass-premium p-1.5 rounded-antigravity-lg shadow-antigravity flex flex-col md:flex-row gap-0 max-w-4xl border border-white/20 items-center overflow-hidden group/search"
+            className="glass-panel p-1.5 rounded-antigravity-lg shadow-antigravity flex flex-col md:flex-row gap-0 max-w-4xl border border-white/20 items-center overflow-hidden group/search"
           >
             <div className="flex-1 w-full">
             <Select value={marca || ""} onValueChange={(val: string | null) => setMarca(val ?? undefined)}>

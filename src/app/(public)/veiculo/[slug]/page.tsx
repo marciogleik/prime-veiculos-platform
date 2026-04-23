@@ -130,7 +130,7 @@ export default async function VeiculoPage({ params }: VeiculoPageProps) {
           <div className="bg-white rounded-3xl p-8 border border-gray-100">
             <h2 className="text-2xl font-display font-bold mb-6">Descrição do Veículo</h2>
             <p className="text-gray-600 leading-relaxed whitespace-pre-wrap">
-              {v.description || "Este veículo premium foi criteriosamente selecionado para compor nosso estoque. Entre em contato para mais informações."}
+              {v.description || "Este veículo selecionado foi criteriosamente avaliado para compor nosso estoque. Entre em contato para mais informações."}
             </p>
           </div>
 
@@ -167,7 +167,7 @@ export default async function VeiculoPage({ params }: VeiculoPageProps) {
                 {v.brand?.name}
               </span>
               <h1 className="text-4xl font-display font-black tracking-tighter mb-2">{v.model}</h1>
-              <p className="text-premium-grey font-medium tracking-tight">{v.version}</p>
+              <p className="text-contrast-black font-medium tracking-tight">{v.version}</p>
             </div>
 
             <div className="flex items-center gap-4 mb-8 pb-8 border-b border-gray-100">

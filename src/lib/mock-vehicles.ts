@@ -128,7 +128,7 @@ export const MOCK_VEHICLES: Vehicle[] = [
     fuel: "Gasolina",
     transmission: "Automático",
     doors: 4,
-    description: `O Audi RS6 Avant Performance é o unicórnio do segmento premium: uma station wagon capaz de acelerar de 0-100 em 3,4 segundos enquanto acomoda confortavelmente cinco passageiros e suas bagagens com classe incomparável.\n\nO motor TFSI V8 twin-turbo de 4.0L foi reprogramado para entregar 630cv e 850Nm na versão Performance. A suspensão pneumática adaptativa RS mantém o carro a 18mm mais baixo em modo RS Individual para máxima dinâmica de condução.`,
+    description: `O Audi RS6 Avant Performance é o unicórnio do segmento de alto luxo: uma station wagon capaz de acelerar de 0-100 em 3,4 segundos enquanto acomoda confortavelmente cinco passageiros e suas bagagens com classe incomparável.\n\nO motor TFSI V8 twin-turbo de 4.0L foi reprogramado para entregar 630cv e 850Nm na versão Performance. A suspensão pneumática adaptativa RS mantém o carro a 18mm mais baixo em modo RS Individual para máxima dinâmica de condução.`,
     optionals: ["Bancos esportivos RS em couro Valcona,Matrix LED Ultra,Bang & Olufsen 3D Advanced,Pacote Preto Óptico,All-road air suspension,Quattro Sport Differential,Head-up display com AR,Assistente de faixa,Carregamento sem fio"],
     status: "disponível",
     is_featured: true,

@@ -54,7 +54,7 @@ const BRAND_SUGGESTIONS = [
   "Ford", "Hyundai", "Kia", "Volvo", "Alfa Romeo",
 ];
 
-const PREMIUM_OPTIONALS = [
+const MAIN_OPTIONALS = [
   "Ar-condicionado",
   "Ar-condicionado digital (dual zone)",
   "Direção hidráulica",
@@ -81,7 +81,7 @@ const PREMIUM_OPTIONALS = [
   "Carregador por indução",
   "Entrada USB",
   "Rodas Aro 20+",
-  "Sistema de Som Premium",
+  "Sistema de Som de Alta Fidelidade",
   "Câmera 360",
   "Park Assist",
   "Controle de Cruzeiro Adaptativo (ACC)",
@@ -479,7 +479,7 @@ export default function VeiculoForm({
               <div className="space-y-3 pt-6 border-t border-gray-100">
                 <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Opcionais (Tags Mágicas)</Label>
                 <div className="flex flex-wrap gap-2">
-                  {PREMIUM_OPTIONALS.map(opt => {
+                  {MAIN_OPTIONALS.map(opt => {
                     const currentOptionals = watch("optionals") || [];
                     const isSelected = currentOptionals.includes(opt);
                     return (
@@ -522,7 +522,7 @@ export default function VeiculoForm({
                       const km = watch("mileage") ? `${watch("mileage")} km` : "0 km";
                       const optionals = watch("optionals")?.join(", ") || "";
                       setTimeout(() => {
-                        setValue("description", `Uma obra prima sobre rodas. Este incrível ${brand} ${model} ${version} ${year} alia performance, requinte e sofisticação inigualável.\n\nCom apenas ${km}, o veículo encontra-se em estado impecável, configurado com maestria.\n\nDestaques desta unidade:\n${optionals ? optionals.split(", ").map(opt => `• ${opt}`).join("\n") : "• Configuração Exclusiva"}\n\nDisponível no showroom da Prime Veículos para você viver a verdadeira Premium Experience.`);
+                        setValue("description", `Uma obra prima sobre rodas. Este incrível ${brand} ${model} ${version} ${year} alia performance, requinte e sofisticação inigualável.\n\nCom apenas ${km}, o veículo encontra-se em estado impecável, configurado com maestria.\n\nDestaques desta unidade:\n${optionals ? optionals.split(", ").map(opt => `• ${opt}`).join("\n") : "• Configuração Exclusiva"}\n\nDisponível no showroom da Prime Veículos para você viver a verdadeira Experiência Prime.`);
                         setIsGeneratingAi(false);
                       }, 1000);
                     }}

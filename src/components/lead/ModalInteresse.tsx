@@ -98,7 +98,7 @@ export default function ModalInteresse({ vehicleId, vehicleLabel, sellerWhatsapp
           <DialogTitle className="text-3xl font-display font-black tracking-tighter leading-none">
             QUERO ESTE <span className="text-primary italic">VEÍCULO.</span>
           </DialogTitle>
-          <DialogDescription className="text-premium-grey font-medium text-sm pt-2">
+          <DialogDescription className="text-contrast-black font-medium text-sm pt-2">
             Deixe seus dados e um de nossos especialistas entrará em contato imediatamente.
           </DialogDescription>
         </DialogHeader>

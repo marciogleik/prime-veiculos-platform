@@ -25,7 +25,7 @@ export default async function VeiculosPage() {
         <div>
           <p className="text-[11px] font-black text-gray-400 uppercase tracking-[0.3em] mb-2 leading-none">Administração</p>
           <h1 className="text-4xl sm:text-5xl font-black tracking-tight text-gray-950">Gestão de Estoque</h1>
-          <p className="text-gray-500 mt-3 font-bold text-sm">Gerencie seu inventário de veículos premium</p>
+          <p className="text-gray-500 mt-3 font-bold text-sm">Gerencie seu inventário de veículos seminovos</p>
         </div>
         <InventorySyncButton />
       </div>

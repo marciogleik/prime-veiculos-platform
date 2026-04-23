@@ -126,7 +126,7 @@ export default function LoginPage() {
           <h1 className="text-3xl font-display font-black text-white tracking-widest leading-none">
             PRIME <span className="text-primary italic">VEÍCULOS</span>
           </h1>
-          <p className="text-gray-400 mt-2 text-sm font-medium tracking-tight">EXPERIÊNCIA AUTOMOTIVA PREMIUM</p>
+          <p className="text-gray-400 mt-2 text-sm font-medium tracking-tight">EXPERIÊNCIA AUTOMOTIVA PRIME</p>
         </div>
 
         <Card className="border-white/10 bg-white/5 backdrop-blur-2xl shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5)] rounded-[2.5rem]">
@@ -341,7 +341,7 @@ export default function LoginPage() {
                     disabled={isPending}
                     className="w-full h-16 rounded-2xl bg-white text-black hover:bg-white/90 font-black uppercase tracking-[0.2em] shadow-2xl group overflow-hidden relative"
                   >
-                    {isPending ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : "CRIAR CONTA PREMIUM"}
+                    {isPending ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : "CRIAR MINHA CONTA"}
                   </Button>
                 </motion.form>
               )}

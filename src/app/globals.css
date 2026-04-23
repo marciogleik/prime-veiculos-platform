@@ -35,7 +35,7 @@
   --animate-shimmer: shimmer 2.5s infinite linear;
 }
 
-@utility skeleton-premium {
+@utility skeleton-base {
   background: linear-gradient(
     90deg,
     rgba(226, 232, 240, 0.1) 25%,
@@ -50,14 +50,14 @@
   background: white; /* Removed gray gradient for pure contrast */
 }
 
-@utility glass-premium {
+@utility glass-panel {
   background: rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(24px) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: var(--shadow-antigravity);
 }
 
-@utility glass-premium-light {
+@utility glass-panel-light {
   background: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(16px) saturate(150%);
   border: 1px solid rgba(255, 255, 255, 0.3);
@@ -72,7 +72,7 @@
   border-radius: var(--radius-antigravity-lg);
 }
 
-@utility text-premium-grey {
+@utility text-contrast-black {
   color: #000000; /* Pure Black: maximum contrast as requested */
 }
 

@@ -18,7 +18,7 @@ export interface SyncResult {
 }
 
 /**
- * Normalizes text from Revenda Mais (lowercase/no accent) to a premium look.
+ * Normalizes text from Revenda Mais (lowercase/no accent) to a high-quality look.
  * Example: "honda cb250f twister" -> "Honda CB250F Twister"
  */
 function beautifyText(str: string | undefined): string {
@@ -77,7 +77,7 @@ export async function syncInventoryFromXML(): Promise<SyncResult> {
   };
 
   try {
-    console.log('--- INICIANDO SINCRONIZAÇÃO PREMIUM XML (BLINDAGEM 5.0) ---');
+    console.log('--- INICIANDO SINCRONIZAÇÃO DE ESTOQUE XML (BLINDAGEM 5.0) ---');
     
     const xmlUrl = process.env.REVENDA_MAIS_XML_URL;
     if (!xmlUrl) throw new Error('REVENDA_MAIS_XML_URL não configurada.');
