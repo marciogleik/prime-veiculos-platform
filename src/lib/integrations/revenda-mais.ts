@@ -87,7 +87,10 @@ export async function syncInventoryFromXML(): Promise<SyncResult> {
 
     const response = await axios.get(xmlUrl, {
       timeout: 30000,
-      headers: { 'Accept': 'application/xml, text/xml' }
+      headers: { 
+        'Accept': 'application/xml, text/xml',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+      }
     });
 
     if (!response.data || typeof response.data !== 'string') {
@@ -198,6 +201,8 @@ export async function syncInventoryFromXML(): Promise<SyncResult> {
             }));
 
             await adminSupabase.from('vehicle_photos').insert(photosToInsert);
+          } else {
+            console.log(`[INFO] Veículo ${externalId} (${rawBrand} ${rawModel}) sem fotos no XML.`);
           }
         }
 
