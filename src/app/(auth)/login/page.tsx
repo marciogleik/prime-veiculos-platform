@@ -62,12 +62,10 @@ export default function LoginPage() {
         return;
       }
       
-      // Middleware handles redirects, but let's be explicit
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data: seller } = await supabase.from('sellers').select('is_admin').eq('id', user.id).single();
-        router.push(seller?.is_admin ? "/dashboard" : "/meu-perfil");
-      }
+      // O middleware interceptará essa navegação e fará o roteamento correto
+      // (Admin -> /dashboard, Cliente -> /meu-perfil)
+      router.push("/dashboard");
+      router.refresh();
     });
   };
 

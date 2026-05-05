@@ -26,13 +26,15 @@ export async function middleware(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
 
   const isAdminRoute = request.nextUrl.pathname.startsWith('/dashboard')
+  const isProfileRoute = request.nextUrl.pathname.startsWith('/meu-perfil')
   const isLoginPage = request.nextUrl.pathname === '/login'
 
-  if (isAdminRoute && !user) {
+  // Bloquear acesso anônimo a rotas protegidas
+  if ((isAdminRoute || isProfileRoute) && !user) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
-  // RBAC: Check if user is admin if they try to access /dashboard
+  // RBAC: Checar se é admin apenas se tentar acessar o dashboard
   if (isAdminRoute && user) {
     const { data: seller } = await supabase
       .from('sellers')
@@ -41,13 +43,13 @@ export async function middleware(request: NextRequest) {
       .single()
 
     if (!seller?.is_admin) {
-      // Redirect regular users to their profile page instead of the dashboard
+      // Usuários comuns são barrados e enviados ao perfil
       return NextResponse.redirect(new URL('/meu-perfil', request.url))
     }
   }
 
+  // Se já está logado e tenta ir pro login, redireciona pro local correto
   if (isLoginPage && user) {
-    // Correctly redirect after login based on role
     const { data: seller } = await supabase
       .from('sellers')
       .select('is_admin')
@@ -62,5 +64,9 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/login'],
+  matcher: [
+    '/dashboard/:path*', 
+    '/meu-perfil/:path*', 
+    '/login'
+  ],
 }

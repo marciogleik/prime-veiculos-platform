@@ -27,20 +27,23 @@ export default function Hero({ brands }: HeroProps) {
 
   return (
     <section className="relative min-h-[95vh] flex items-center pt-24 overflow-hidden bg-black">
-      {/* Full-bleed car background */}
+      {/* Full-bleed background */}
       <div className="absolute inset-0 z-0">
         <motion.img 
           initial={{ scale: 1.1, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 1.5, ease: "easeOut" }}
-          src="/hero-car.png" 
-          alt="Veículo" 
-          className="absolute inset-0 w-full h-full object-cover object-[75%_center] opacity-80"
+          src="/hero-prime-original-4k.png" 
+          alt="Showroom Prime Veículos" 
+          className="absolute inset-0 w-full h-full object-cover object-center md:object-[center_45%] opacity-90"
         />
-        {/* Gradient overlay: strong black on left for text, transparent on right to show car */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 via-40% to-transparent" />
-        {/* Subtle red accent glow */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_60%,rgba(225,29,72,0.1),transparent_50%)]" />
+        
+        {/* Enhanced 4K Original Dealership Photo */}
+
+        {/* Gradient overlays to maintain text readability and premium feel */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/60 via-30% to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(225,29,72,0.1),transparent_60%)]" />
       </div>
 
       <div className="container mx-auto px-6 relative z-20">
