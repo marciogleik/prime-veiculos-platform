@@ -74,7 +74,7 @@ export default async function VeiculoPage({ params }: VeiculoPageProps) {
   // Formatting WhatsApp
   const cleanPhone = v.seller?.whatsapp?.replace(/\D/g, "") || "66984187359";
   const finalPhone = cleanPhone.startsWith("55") ? cleanPhone : `55${cleanPhone}`;
-  const whatsappUrl = `https://wa.me/${finalPhone}?text=${encodeURIComponent(`Olá! Tenho interesse no *${v.brand?.name} ${v.model}* que vi no site.`)}`;
+  const whatsappUrl = `https://wa.me/${finalPhone}?text=${encodeURIComponent(`Olá, vim pela plataforma da prime veiculos Água Boa - MT. Tenho interesse no *${v.brand?.name} ${v.model}*`)}`;
 
   return (
     <div className="pt-32 pb-20 container mx-auto px-4 relative">

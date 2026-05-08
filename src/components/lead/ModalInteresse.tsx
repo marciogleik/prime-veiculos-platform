@@ -57,7 +57,7 @@ export default function ModalInteresse({ vehicleId, vehicleLabel, sellerWhatsapp
       const finalPhone = cleanPhone.startsWith("55") ? cleanPhone : `55${cleanPhone}`;
       
       const customMsg = data.message ? `\n\nMensagem: ${data.message}` : "";
-      const msg = encodeURIComponent(`Olá! Vi o anúncio na Prime Veículos e tenho interesse no *${vehicleLabel}*.\n\nNome: ${data.name}${customMsg}`);
+      const msg = encodeURIComponent(`Olá, vim pela plataforma da prime veiculos Água Boa - MT. Tenho interesse no *${vehicleLabel}*.\n\nNome: ${data.name}${customMsg}`);
       
       setTimeout(() => {
         window.open(`https://wa.me/${finalPhone}?text=${msg}`, "_blank");

@@ -21,7 +21,7 @@ export default function Footer() {
               <a href="https://www.instagram.com/primeveiculos_ab?igsh=bjFtb3ZzbDZwNzV1" target="_blank" className="bg-white/10 p-2 rounded-full hover:bg-primary transition-colors">
                 <Instagram className="w-5 h-5" />
               </a>
-              <a href="https://wa.me/message/FCLJWRVPZNJHP1" target="_blank" className="bg-white/10 p-2 rounded-full hover:bg-emerald-500 transition-colors">
+              <a href="https://wa.me/5566984187359?text=Olá%2C%20vim%20pela%20plataforma%20da%20prime%20veiculos%20Água%20Boa%20-%20MT" target="_blank" className="bg-white/10 p-2 rounded-full hover:bg-emerald-500 transition-colors">
                 <Phone className="w-5 h-5" />
               </a>
             </div>

@@ -15,7 +15,7 @@ export default async function HomePage() {
     .select("*")
     .order("name", { ascending: true });
 
-  const whatsappUrl = "https://wa.me/message/FCLJWRVPZNJHP1";
+  const whatsappUrl = "https://wa.me/5566984187359?text=Olá%2C%20vim%20pela%20plataforma%20da%20prime%20veiculos%20Água%20Boa%20-%20MT";
 
   return (
     <div className="pb-20 bg-white min-h-screen">
