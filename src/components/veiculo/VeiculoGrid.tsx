@@ -10,7 +10,7 @@ export default async function VeiculoGrid() {
     .from("vehicles")
     .select("*, brand:brands(*), photos:vehicle_photos(*)")
     .eq("is_featured", true)
-    .eq("status", "disponível")
+    .in("status", ["disponível", "vendido"])
     .limit(8);
 
   const vehicles = (dbVehicles && dbVehicles.length > 0) ? dbVehicles : MOCK_VEHICLES.filter(v => v.is_featured).slice(0, 4);

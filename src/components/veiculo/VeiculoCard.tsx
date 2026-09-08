@@ -16,55 +16,66 @@ const formatKm = (km: number) =>
 
 export default function VeiculoCard({ veiculo }: VeiculoCardProps) {
   const capa = veiculo.photos?.[0]?.url || "/placeholder-car.jpg";
+  const isVendido = veiculo.status === "vendido";
 
   return (
     <Link
       href={`/veiculo/${veiculo.slug}`}
       className="group block bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-500 ease-out"
     >
-      {/* Image */}
-    <div className="relative aspect-[16/10] overflow-hidden bg-slate-900">
+      {/* Image — proporção mais alta para o carro aparecer mais */}
+      <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
         <Image
           src={capa}
           alt={`${veiculo.brand?.name} ${veiculo.model}`}
           fill
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-          className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out z-0"
+          className={`object-cover group-hover:scale-105 transition-transform duration-700 ease-out z-0 ${isVendido ? "grayscale-[40%]" : ""}`}
         />
-        {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-900/40 to-transparent z-10" />
 
-        {/* Top badges */}
+        {/* Gradiente leve apenas na base para as badges não ficarem ilegíveis */}
+        <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black/30 to-transparent z-10" />
+
+        {/* Badges superiores */}
         <div className="absolute top-3 left-3 flex gap-2 z-20">
-          {veiculo.is_featured && (
-            <Badge className="bg-primary text-white text-[9px] font-black tracking-widest px-2.5 py-1 rounded-full border-0 backdrop-blur-sm">
+          {veiculo.is_featured && !isVendido && (
+            <Badge className="bg-primary text-white text-[9px] font-black tracking-widest px-2.5 py-1 rounded-full border-0 shadow-lg backdrop-blur-sm">
               DESTAQUE
             </Badge>
           )}
-          {veiculo.mileage === 0 && (
-            <Badge className="bg-emerald-500 text-white text-[9px] font-black tracking-widest px-2.5 py-1 rounded-full border-0 backdrop-blur-sm">
+          {veiculo.mileage === 0 && !isVendido && (
+            <Badge className="bg-emerald-500 text-white text-[9px] font-black tracking-widest px-2.5 py-1 rounded-full border-0 shadow-lg backdrop-blur-sm">
               0 KM
             </Badge>
           )}
         </div>
 
-        {/* Bottom info overlay */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 z-20">
-          <p className="text-[9px] font-black text-white/80 uppercase tracking-[0.25em] mb-0.5 drop-shadow-md">
-            {veiculo.brand?.name}
-          </p>
-          <h2 className="text-xl font-display font-black text-white leading-tight tracking-tighter drop-shadow-lg">
-            {veiculo.model}
-          </h2>
-        </div>
+        {/* VENDIDO banner — posicionado no topo para não cobrir o carro */}
+        {isVendido && (
+          <div className="absolute top-0 left-0 right-0 z-30 pointer-events-none overflow-hidden">
+            <div
+              className="bg-red-600 text-white font-black uppercase tracking-[0.35em] text-sm px-10 py-2.5 shadow-lg shadow-red-950/60 border-b-2 border-red-400/30 w-full text-center"
+            >
+              VENDIDO
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Body */}
       <div className="p-5">
-        {/* Version */}
-        <p className="text-xs text-slate-400 font-medium line-clamp-1 mb-4">
-          {veiculo.version || veiculo.description}
-        </p>
+        {/* Marca + Modelo */}
+        <div className="mb-3">
+          <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.25em] mb-0.5">
+            {veiculo.brand?.name}
+          </p>
+          <h2 className="text-lg font-display font-black text-slate-900 leading-tight tracking-tighter">
+            {veiculo.model}
+          </h2>
+          <p className="text-xs text-slate-400 font-medium line-clamp-1 mt-0.5">
+            {veiculo.version || veiculo.description}
+          </p>
+        </div>
 
         {/* Specs strip */}
         <div className="grid grid-cols-3 gap-3 mb-5 pb-4 border-b border-slate-100">
@@ -85,15 +96,15 @@ export default function VeiculoCard({ veiculo }: VeiculoCardProps) {
           </div>
         </div>
 
-        {/* Footer: Price + CTA */}
+        {/* Footer: Preço + CTA */}
         <div className="flex items-center justify-between">
           <div>
             <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Preço</p>
-            <p className="text-lg font-display font-black text-slate-900 leading-none">
+            <p className={`text-lg font-display font-black leading-none ${isVendido ? "text-slate-400 line-through" : "text-slate-900"}`}>
               {formatPrice(veiculo.price)}
             </p>
           </div>
-          <div className="w-9 h-9 rounded-full bg-slate-900 group-hover:bg-primary flex items-center justify-center transition-colors duration-300 shrink-0">
+          <div className={`w-9 h-9 rounded-full flex items-center justify-center transition-colors duration-300 shrink-0 ${isVendido ? "bg-slate-300" : "bg-slate-900 group-hover:bg-primary"}`}>
             <ArrowRight className="w-4 h-4 text-white group-hover:translate-x-0.5 transition-transform" />
           </div>
         </div>
